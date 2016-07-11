@@ -42,9 +42,12 @@ class BoilerplateScene extends React.Component {
   };
 
   nameGame = (personName) => {
+    console.log(personName);
     var name = prompt('namegame! who is this person?');
     if (name === personName) {
-      alert('success!');
+      console.log('success!')
+    } else {
+      console.log('wrong! ' + personName + 'is not called ' + name);
     }
   };
 
@@ -181,7 +184,7 @@ class BoilerplateScene extends React.Component {
         {/*insert other material here*/}
 
         {/* visible toggle */}
-        <Entity onClick={that.togglePyramidVisibility} geometry="primitive: box" static-body material="color: red" position="-10 0 1"> </Entity>
+        <Entity onClick={that.togglePyramidVisibility} geometry="primitive: box"  material="color: red" position="-10 0 1"> </Entity>
 
         {/* cylinders */}
 
@@ -200,7 +203,7 @@ class BoilerplateScene extends React.Component {
 
             return <Entity key={person.id} data={person}
                 geometry="primitive: box"
-                static-body
+
                 material={{src: `url(${person.image})`, color: that.state.color}}
                 onClick={that.changeColor} >
                 <Entity text={`text:  ${person.name}`}
@@ -227,7 +230,7 @@ class BoilerplateScene extends React.Component {
 
               return <Entity key={person.id} data={person}
                   geometry="primitive: box"
-                  static-body
+
                   material={{src: `url(${person.image})`, color: that.state.color}}
                   onClick={that.changeColor} >
                   <Entity text={`text:  ${person.name}`}
@@ -255,7 +258,7 @@ class BoilerplateScene extends React.Component {
 
                 return <Entity key={person.id} data={person}
                     geometry="primitive: box"
-                    static-body
+
                     material={{src: `url(${person.image})`, color: that.state.color}}
                     onClick={that.changeColor} >
                     <Entity text={`text:  ${person.name}`}
@@ -282,7 +285,7 @@ class BoilerplateScene extends React.Component {
                     {datamap[0].users.slice(datamap[0].pyramidSliceStart, datamap[0].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
-                        static-body
+
                         material={{src: `url(${person.image})`, color: 'orange'}}
                         onClick={() => {that.nameGame(person.name)} } >
                       </Entity>
@@ -302,7 +305,7 @@ class BoilerplateScene extends React.Component {
                     {datamap[0].users.slice(datamap[0].pyramidSliceStart, datamap[0].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
-                        static-body
+
                         material={{src: `url(${person.image})`, color: that.state.color}}
                         onClick={that.changeColor} >
                         {/*<Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>*/}
@@ -323,7 +326,7 @@ class BoilerplateScene extends React.Component {
                     {datamap[1].users.slice(datamap[1].pyramidSliceStart, datamap[1].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
-                        static-body
+
                         material={{src: `url(${person.image})`, color: that.state.color}}
                         onClick={that.changeColor} >
                       </Entity>
@@ -340,7 +343,7 @@ class BoilerplateScene extends React.Component {
                     {datamap[1].users.slice(datamap[1].pyramidSliceStart, datamap[1].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
-                        static-body
+
                         material={{src: `url(${person.image})`, color: that.state.color}}
                         onClick={that.changeColor} >
                         {/*<Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>*/}
@@ -359,7 +362,7 @@ class BoilerplateScene extends React.Component {
                     {datamap[2].users.slice(datamap[2].pyramidSliceStart, datamap[2].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
-                        static-body
+
                         material={{src: `url(${person.image})`, color: that.state.color}}
                         onClick={that.changeColor} >
                       </Entity>
@@ -376,7 +379,7 @@ class BoilerplateScene extends React.Component {
                     {datamap[2].users.slice(datamap[2].pyramidSliceStart, datamap[2].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
-                        static-body
+
                         material={{src: `url(${person.image})`, color: that.state.color}}
                         onClick={that.changeColor} >
                         {/*<Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>*/}

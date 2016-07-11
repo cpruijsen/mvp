@@ -12,6 +12,7 @@
 * currently no point, as we don't have more data.
 
 ### gamefield
+- [] change dependency to either A-frame master (check if it works with Aframe-react) or Extras v1.x (to work with aframe v0.2.x)
 - [] set up floor (plane), sky (dome)
 - [] transparency for floor
 - [] add gravity for player / camera
@@ -28,13 +29,13 @@
 ### Misc:
 - [] consolidate dependency management
 - [] create readme with step-by-step
-- [] request more (and richer) data from HR 
+- [] request more (and richer) data from HR
 - [DONE] rotate text based on player position (so always visible from front)
 * I'm not too happy with look-at performance. Might be related to the text entity colliding somehow with the boxes.
 
 ### idea: name game
-- [] click on a box to get a prompt
-- [] prompt asks for name of the person
+- [DONE] click on a box to get a prompt
+- [DONE] prompt asks for name of the person
 - [] if correct global score ++
 - [] if incorrect global error++
 - [] if error > 10, game over
