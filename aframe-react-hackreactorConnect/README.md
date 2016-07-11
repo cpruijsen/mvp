@@ -3,14 +3,17 @@
 
 
 ### findings:
-- when dynamically rendering layouts which include dynamically rendered entities based on a dataset map, changing the dataset on click / action weirdly renders the entire layout further away (although the react chrome dev tools do not show a different position).
-- dynamically changing both dataset and layout type also conflicts.
+- for detailed reports on lessons learned / insights into aframe and aframe-react as well as the other used component libraries, see `README-FINDINGS.md`
+
+###
+
 
 
 
 ### This project makes use of aframe-react-boilerplate
 
 - NOTE: this was used to save time on webpack and dependency setup, all react / aframe components provided were edited / customized / re-written.
+- to reiterate: all code to do with dynamically slicing data, rendering complex layouts and nested layouts, working with data etc was written custom for this project.
 
 An [aframe-react](https://github.com/ngokevin/aframe-react) boilerplate, combining [A-Frame](https://aframe.io) with React.
 

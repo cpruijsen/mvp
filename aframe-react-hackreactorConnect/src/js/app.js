@@ -24,8 +24,9 @@ class BoilerplateScene extends React.Component {
     super(props);
     this.state = {
       color: 'yellow',
-      layout: 'circle',
-      cohort: 0
+      pyramidVisibility: false
+      // layout: 'circle',
+      // cohort: 0
     }
   }
 
@@ -36,66 +37,13 @@ class BoilerplateScene extends React.Component {
     });
   };
 
-  changeLayout = () => {
-  const layoutTypes = ['box', 'circle', 'cube', 'dodecahedron', 'line', 'pyramid'];
-  this.setState({
-    layout: layoutTypes[Math.floor(Math.random() * layoutTypes.length)],
-  });
-};
-
-  // changeCohort = () => {
-  //   if (this.state.cohort < 2) {
-  //     this.setState({cohort: this.state.cohort + 1});
-  //   } else {
-  //     this.setState({cohort: 0});
-  //   }
-  // };
-
-  getLayoutOptions = () => {
-    if (this.state.layout === 'circle') {
-      return {
-        margin: 0,
-        radius: 7,
-        columns: 0
-      };
-    } else if (this.state.layout === 'box') {
-      return {
-        margin: 1.5,
-        radius: 0,
-        columns: 8
-      };
-    } else if (this.state.layout === 'line') {
-      return {
-        margin: 1.5,
-        radius: 0,
-        columns: 0
-      };
-    } else if (this.state.layout === 'dodecahedron') {
-      return {
-        margin: 0, // takes 20 (do deca) boxes
-        radius: 20, // leaves rest in prev. config.
-        columns: 0
-      };
-    } else if (this.state.layout === 'pyramid') {
-      return {
-        margin: 0,
-        radius: 20, // renders 4 entity boxes into a pyramid
-        columns: 0 // leaving the rest in the previous configuration.
-      };
-    } else if (this.state.layout === 'cube') {
-      return {
-        margin: 0, // as pyramid, using 6 boxes
-        radius: 20, // rest is left in prev. config.
-        columns: 0
-      }
-    }
+  togglePyramidVisibility = () => {
+    this.setState({pyramidVisibility: !this.state.pyramidVisibility});
   };
 
   render () {
     // general internal
     var that = this;
-    var currentLayoutOptions = that.getLayoutOptions();
-
     // function to create an object which holds each cohort as a separate object, which includes functions and variables dependent on the length of that cohorts users array.
     // these are in turn used for dynamic layout and rendering.
     // TODO: refactor and import this from another file.
@@ -103,11 +51,15 @@ class BoilerplateScene extends React.Component {
       var obj = {};
       var len = data.length;
       for (let i = 0; i < len; i++) {
+        // general
         obj[i] = data[i];
         obj[i].len = obj[i].users.length;
         obj[i].datasq = Math.floor(Math.sqrt(obj[i].len));
         obj[i].datacb = Math.floor(Math.cbrt(obj[i].len));
         obj[i].numCircles = Math.floor(obj[i].len / 10);
+        obj[i].dataRangeToSqrt = _.range(0, obj[i].datasq + 1);
+        obj[i].dataRangeToCbrt = _.range(0, obj[i].datacb );
+        // cylinders
         obj[i].dataRangeCircles = _.range(0, obj[i].numCircles);
         obj[i].circleIterator = obj[i].numCircles;
         obj[i].circleSliceStart = -10;
@@ -115,9 +67,9 @@ class BoilerplateScene extends React.Component {
         obj[i].circlePosition = 0;
         obj[i].changePosForCylinder = function() {
           this.circleIterator--;
-          var z = i * 10 + 10; // so each dataset has a unique rendering position for the cylinders
+          var z = i * 10 - 10; // so each dataset has a unique rendering position for the cylinders
           var position = this.dataRangeCircles[this.circleIterator];
-          this.circlePosition = `0 ${position} ${z}`;
+          this.circlePosition = `10 ${position} ${z}`;
         };
         obj[i].determineSlicingCylinder = function(options, i) {
           if (options.all) { // renders remaining people
@@ -133,6 +85,72 @@ class BoilerplateScene extends React.Component {
             this.circleSliceEnd = this.circleSliceStart + 10;
           }
         };
+        // pyramids and mirrored pyramids
+        obj[i].sliceArr = [];
+        obj[i].numBoxesUsedInPyramid = 0;
+        obj[i].leftOverBoxes = 0;
+        obj[i].pyramidCurrentN =  0;
+        obj[i].pyramidPosition = 0;
+        obj[i].pyramidMirroredPosition = 0;
+        obj[i].pyramidSliceStart = 0;
+        obj[i].pyramidSliceEnd = 0;
+        obj[i].pyramidIterator = 0;
+        obj[i].calculatePyramid = function(n, base, count) {
+          var count = count || 1;
+          var base = base || 2;
+          if (count === n) {
+            obj[i].numBoxesUsedInPyramid = count;
+            obj[i].leftOverBoxes = n - count;
+            obj[i].sliceArr.push(count);
+            return base-1;
+          } else if (count > n) {
+            return base - 2;
+          } else {
+            obj[i].numBoxesUsedInPyramid = count;
+            obj[i].leftOverBoxes = n - count;
+            obj[i].sliceArr.push(count);
+            return obj[i].calculatePyramid(n, base + 1, count + base*base);
+          }
+        };
+        obj[i].calculatePyramid(obj[i].len);
+        obj[i].sliceArr = obj[i].sliceArr.reverse();
+        obj[i].pyramidPositionX = -10;
+        obj[i].pyramidPositionY = 1; // manipulates distance between pyramids
+        obj[i].pyramidPositionZ = i * 10 -20;
+        obj[i].pyramidMirroredPositionX = -10;
+        obj[i].pyramidMirroredPositionY = 0;
+        obj[i].pyramidMirroredPositionZ = i * 10 -20;
+        obj[i].determineNforPyramid = function() {
+          if (!obj[i].sliceArr[obj[i].pyramidIterator]) {
+            obj[i].pyramidIterator = 0; // reset on mirrored pyramid creation.
+          }
+
+          obj[i].pyramidSliceStart = obj[i].numBoxesUsedInPyramid - obj[i].sliceArr[obj[i].pyramidIterator];
+          if (obj[i].sliceArr[obj[i].pyramidIterator+1]) {
+            obj[i].pyramidSliceEnd = obj[i].numBoxesUsedInPyramid - obj[i].sliceArr[obj[i].pyramidIterator+1];
+          } else {
+            obj[i].pyramidSliceEnd = obj[i].numBoxesUsedInPyramid; // so we don't get NaN
+          }
+          obj[i].pyramidIterator++;
+          obj[i].pyramidCurrentN = Math.sqrt(obj[i].pyramidSliceEnd - obj[i].pyramidSliceStart);
+        };
+
+        obj[i].changePositionForPyramid = function(options) {
+          options = options || {};
+          if (options.mirrored) { // X and Z could go +1 instead ?
+            obj[i].pyramidMirroredPositionX +=1;
+            obj[i].pyramidMirroredPositionY -=1;
+            obj[i].pyramidMirroredPositionZ +=1;
+            obj[i].pyramidMirroredPosition = `${obj[i].pyramidMirroredPositionX} ${obj[i].pyramidMirroredPositionY} ${obj[i].pyramidMirroredPositionZ}`
+          }
+          obj[i].pyramidPositionX +=1; // on second iteration (mirrored) this shouldn't affect
+          obj[i].pyramidPositionY +=1; // rendering of the first pyramid.
+          obj[i].pyramidPositionZ +=1;
+          obj[i].pyramidPosition = `${obj[i].pyramidPositionX} ${obj[i].pyramidPositionY} ${obj[i].pyramidPositionZ}`
+        };
+
+        // other shapes...
+
       }
       return obj;
     };
@@ -140,34 +158,34 @@ class BoilerplateScene extends React.Component {
     // {0: { }, 1: {}, 2: {}}
     // where 0:{group_name, group_id, users, len, ... }
 
-    // var len = data.length;
-    // var datasq = Math.floor(Math.sqrt(len)); // 43 => 6
-    // var datacb = Math.floor(Math.cbrt(len));
-    // var dataRangeToSqrt = _.range(0, datasq + 1); // [0, 1, 2, 3, 4, 5, 6]
-    // var dataRangeToCbrt = _.range(0, datacb ); // 43 => [0, 1, 2, 3]
-
-    // NOTE: not so functional atm. dynamic data switch.
-    var cohort = data[that.state.cohort].users;
-
     return (
       // TODO: make physics work w/ jump and collision
       // `kinematic-body` on camera, `static-body` on floor and Sky
       // `physics` on Scene
-
       <Scene>
         <Camera><Cursor/></Camera>
         <Sky/>
-
 
         <Entity light={{type: 'ambient', color: '#888'}}/>
         <Entity light={{type: 'directional', intensity: 0.5}} position={[-1, 1, 0]}/>
         <Entity light={{type: 'directional', intensity: 1}} position={[1, 1, 0]}/>
 
+        {/*insert other material here*/}
+
+        {/* visible toggle */}
+        <Entity onClick={that.togglePyramidVisibility} geometry="primitive: box" material="color: red" position="-10 0 1"> </Entity>
+
+        {/* cylinders */}
+
+        {/* cylinder 1 */}
         {datamap[0].dataRangeCircles.map(function(i) {
           datamap[0].changePosForCylinder();
           datamap[0].determineSlicingCylinder({all: true}, i);
 
-          return <Entity layout={{type: 'circle', radius: `${datamap[0].datacb}`}} position={datamap[0].circlePosition}>
+          return <Entity
+            layout={{type: 'circle', radius: `${datamap[0].datacb}`}} position={datamap[0].circlePosition}
+            visible={!that.state.pyramidVisibility}
+            >
           <Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[0].datasq}`} direction="alternate" begin="5000"/>
 
           {datamap[0].users.slice(datamap[0].circleSliceStart, datamap[0].circleSliceEnd).map(function(person) {
@@ -176,21 +194,24 @@ class BoilerplateScene extends React.Component {
                 geometry="primitive: box"
                 material={{src: `url(${person.image})`, color: that.state.color}}
                 onClick={that.changeColor} >
-                {/*<Entity text={`text:  ${person.name}`}
+                <Entity text={`text:  ${person.name}`}
                         material="color: #66E1B4"
                         scale="0.3 0.3 0.3"
                         position="0 .5 -1"
-                        rotation="0 180 0"
-                        visible="true"
-                </Entity>*/}
+                        look-at="#camera"
+                        visible="true" />
               </Entity>; })}
             </Entity> })}
+
+          {/* cylinder 2 */}
 
           {datamap[1].dataRangeCircles.map(function(i) {
             datamap[1].changePosForCylinder();
             datamap[1].determineSlicingCylinder({all: true}, i);
 
-            return <Entity layout={{type: 'circle', radius: `${datamap[1].datacb}`}} position={datamap[1].circlePosition}>
+            return <Entity layout={{type: 'circle', radius: `${datamap[1].datacb}`}}
+              position={datamap[1].circlePosition}
+              visible={!that.state.pyramidVisibility} >
             <Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[1].datasq}`} direction="alternate" begin="5000"/>
 
             {datamap[1].users.slice(datamap[1].circleSliceStart, datamap[1].circleSliceEnd).map(function(person) {
@@ -199,20 +220,25 @@ class BoilerplateScene extends React.Component {
                   geometry="primitive: box"
                   material={{src: `url(${person.image})`, color: that.state.color}}
                   onClick={that.changeColor} >
-                  {/*<Entity text={`text:  ${person.name}`}
+                  <Entity text={`text:  ${person.name}`}
                           material="color: #66E1B4"
                           scale="0.3 0.3 0.3"
                           position="0 .5 -1"
-                          rotation="0 180 0"
-                          visible="true" </Entity>*/}
+                          look-at="#camera"
+                          visible="true" />
                 </Entity>; })}
               </Entity> })}
+
+            {/* cylinder 3 */}
 
             {datamap[2].dataRangeCircles.map(function(i) {
               datamap[2].changePosForCylinder();
               datamap[2].determineSlicingCylinder({all: true}, i);
 
-              return <Entity layout={{type: 'circle', radius: `${datamap[2].datacb}`}} position={datamap[2].circlePosition}>
+              return <Entity layout={{type: 'circle', radius: `${datamap[2].datacb}`}}
+                position={datamap[2].circlePosition}
+                visible={!that.state.pyramidVisibility}
+                >
               <Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[2].datasq}`} direction="alternate" begin="5000"/>
 
               {datamap[2].users.slice(datamap[2].circleSliceStart, datamap[2].circleSliceEnd).map(function(person) {
@@ -221,47 +247,128 @@ class BoilerplateScene extends React.Component {
                     geometry="primitive: box"
                     material={{src: `url(${person.image})`, color: that.state.color}}
                     onClick={that.changeColor} >
-                    {/*<Entity text={`text:  ${person.name}`}
+                    <Entity text={`text:  ${person.name}`}
                             material="color: #66E1B4"
                             scale="0.3 0.3 0.3"
                             position="0 .5 -1"
-                            rotation="0 180 0"
-                            visible="true" </Entity>*/}
+                            look-at="#camera"
+                            visible="true" />
                   </Entity>; })}
                 </Entity> })}
 
+                {/*pyramids and mirrored pyramids*/}
 
 
 
-        {/* changeLayout control entity for layout test container */}
-        <Entity onClick={that.changeLayout} geometry="primitive: cylinder" material="color: red" position="-10 0 1"> </Entity>
+                {/* pyramid 1 */}
 
-        {/* changeCohort control entity for layout test container
-          TODO: need to debug.
-          layout on change of data renders a new layout
-          but this new layout cannot 'overlap' the old one
-          so it might be better to instead remove and add a new layout
+                {datamap[0].sliceArr.map(function(i) {
+                  datamap[0].determineNforPyramid();
+                  datamap[0].changePositionForPyramid();
+                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[0].pyramidCurrentN}`}}
+                      position={datamap[0].pyramidPosition}
+                      rotation="90 0 0"
+                      visible={that.state.pyramidVisibility} >
 
-          <Entity onClick={that.changeCohort} geometry="primitive: cylinder" material="color: green" position="-13 0 1"> </Entity>
-        */}
+                    {datamap[0].users.slice(datamap[0].pyramidSliceStart, datamap[0].pyramidSliceEnd).map(function(person) {
+                      return <Entity key={person.id}
+                        geometry="primitive: box"
+                        material={{src: `url(${person.image})`, color: that.state.color}}
+                        onClick={that.changeColor} >
+                      </Entity>
+                    })}
+                  </Entity>
+                })}
 
-        {/* Layout tests container entity component */}
-          <Entity
-              layout={{type: `${that.state.layout}`,
-              margin: `${currentLayoutOptions.margin}`,
-              radius: `${currentLayoutOptions.radius}`,
-              columns: `${currentLayoutOptions.columns}` }}
-              position="20 0 -10" >
+                {/*// === MIRRORED PYRAMID 1 === //*/}
+                {datamap[0].sliceArr.map(function(i) {
+                  datamap[0].determineNforPyramid();
+                  datamap[0].changePositionForPyramid({mirrored: true});
+                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[0].pyramidCurrentN}`}}
+                      position={datamap[0].pyramidMirroredPosition}
+                      rotation="90 0 0"
+                      visible={that.state.pyramidVisibility} >
 
-          {cohort.map(function(person) {
-            return <Entity key={person.id} data={person}
-                    // static-body="shape: box"
-                    geometry="primitive: box"
-                    material={{src: `url(${person.image})`, color: that.state.color}}
-                    onClick={that.changeColor} >
-              <Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>
-            </Entity>; })}
-          </Entity>
+                    {datamap[0].users.slice(datamap[0].pyramidSliceStart, datamap[0].pyramidSliceEnd).map(function(person) {
+                      return <Entity key={person.id}
+                        geometry="primitive: box"
+                        material={{src: `url(${person.image})`, color: that.state.color}}
+                        onClick={that.changeColor} >
+                        <Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>
+                      </Entity>
+                    })}
+                  </Entity>
+                })}
+
+                {/*pyramid 2*/}
+
+                {datamap[1].sliceArr.map(function(i) {
+                  datamap[1].determineNforPyramid();
+                  datamap[1].changePositionForPyramid();
+                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[1].pyramidCurrentN}`}} position={datamap[1].pyramidPosition}
+                      rotation="90 0 0"
+                      visible={that.state.pyramidVisibility}>
+
+                    {datamap[1].users.slice(datamap[1].pyramidSliceStart, datamap[1].pyramidSliceEnd).map(function(person) {
+                      return <Entity key={person.id}
+                        geometry="primitive: box"
+                        material={{src: `url(${person.image})`, color: that.state.color}}
+                        onClick={that.changeColor} >
+                      </Entity>
+                    })}
+                  </Entity>
+                })}
+
+                {/*// === MIRRORED PYRAMID 2 === //*/}
+                {datamap[1].sliceArr.map(function(i) {
+                  datamap[1].determineNforPyramid();
+                  datamap[1].changePositionForPyramid({mirrored: true});
+                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[1].pyramidCurrentN}`}} position={datamap[1].pyramidMirroredPosition} rotation="90 0 0" visible={that.state.pyramidVisibility} >
+
+                    {datamap[1].users.slice(datamap[1].pyramidSliceStart, datamap[1].pyramidSliceEnd).map(function(person) {
+                      return <Entity key={person.id}
+                        geometry="primitive: box"
+                        material={{src: `url(${person.image})`, color: that.state.color}}
+                        onClick={that.changeColor} >
+                        <Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>
+                      </Entity>
+                    })}
+                  </Entity>
+                })}
+
+                {/* pyramid 3 */}
+
+                {datamap[2].sliceArr.map(function(i) {
+                  datamap[2].determineNforPyramid();
+                  datamap[2].changePositionForPyramid();
+                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[2].pyramidCurrentN}`}} position={datamap[2].pyramidPosition} rotation="90 0 0" visible={that.state.pyramidVisibility}>
+
+                    {datamap[2].users.slice(datamap[2].pyramidSliceStart, datamap[2].pyramidSliceEnd).map(function(person) {
+                      return <Entity key={person.id}
+                        geometry="primitive: box"
+                        material={{src: `url(${person.image})`, color: that.state.color}}
+                        onClick={that.changeColor} >
+                      </Entity>
+                    })}
+                  </Entity>
+                })}
+
+                {/*// === MIRRORED PYRAMID 3 === //*/}
+                {datamap[2].sliceArr.map(function(i) {
+                  datamap[2].determineNforPyramid();
+                  datamap[2].changePositionForPyramid({mirrored: true});
+                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[2].pyramidCurrentN}`}} position={datamap[2].pyramidMirroredPosition} rotation="90 0 0" visible={that.state.pyramidVisibility}>
+
+                    {datamap[2].users.slice(datamap[2].pyramidSliceStart, datamap[2].pyramidSliceEnd).map(function(person) {
+                      return <Entity key={person.id}
+                        geometry="primitive: box"
+                        material={{src: `url(${person.image})`, color: that.state.color}}
+                        onClick={that.changeColor} >
+                        <Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>
+                      </Entity>
+                    })}
+                  </Entity>
+                })}
 
       </Scene>
     );

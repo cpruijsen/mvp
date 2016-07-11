@@ -4,7 +4,8 @@ import React from 'react';
 export default props => (
   <Entity>
     <Entity
-      position="0 1 0"
+      id="camera"
+      position="0 0 0"
       camera=""
       //look-controls=""
       //wasd-controls=""
