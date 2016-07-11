@@ -41,6 +41,13 @@ class BoilerplateScene extends React.Component {
     this.setState({pyramidVisibility: !this.state.pyramidVisibility});
   };
 
+  nameGame = (personName) => {
+    var name = prompt('namegame! who is this person?');
+    if (name === personName) {
+      alert('success!');
+    }
+  };
+
   render () {
     // general internal
     var that = this;
@@ -161,8 +168,9 @@ class BoilerplateScene extends React.Component {
     return (
       // TODO: make physics work w/ jump and collision
       // `kinematic-body` on camera, `static-body` on floor and Sky
-      // `physics` on Scene
+      // `physics` on Scene && canvas=""
       <Scene>
+
         <Camera><Cursor/></Camera>
         <Sky/>
 
@@ -173,7 +181,7 @@ class BoilerplateScene extends React.Component {
         {/*insert other material here*/}
 
         {/* visible toggle */}
-        <Entity onClick={that.togglePyramidVisibility} geometry="primitive: box" material="color: red" position="-10 0 1"> </Entity>
+        <Entity onClick={that.togglePyramidVisibility} geometry="primitive: box" static-body material="color: red" position="-10 0 1"> </Entity>
 
         {/* cylinders */}
 
@@ -186,12 +194,13 @@ class BoilerplateScene extends React.Component {
             layout={{type: 'circle', radius: `${datamap[0].datacb}`}} position={datamap[0].circlePosition}
             visible={!that.state.pyramidVisibility}
             >
-          <Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[0].datasq}`} direction="alternate" begin="5000"/>
+          {/*<Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[0].datasq}`} direction="alternate" begin="5000"/>*/}
 
           {datamap[0].users.slice(datamap[0].circleSliceStart, datamap[0].circleSliceEnd).map(function(person) {
 
             return <Entity key={person.id} data={person}
                 geometry="primitive: box"
+                static-body
                 material={{src: `url(${person.image})`, color: that.state.color}}
                 onClick={that.changeColor} >
                 <Entity text={`text:  ${person.name}`}
@@ -212,12 +221,13 @@ class BoilerplateScene extends React.Component {
             return <Entity layout={{type: 'circle', radius: `${datamap[1].datacb}`}}
               position={datamap[1].circlePosition}
               visible={!that.state.pyramidVisibility} >
-            <Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[1].datasq}`} direction="alternate" begin="5000"/>
+            {/*<Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[1].datasq}`} direction="alternate" begin="5000"/>*/}
 
             {datamap[1].users.slice(datamap[1].circleSliceStart, datamap[1].circleSliceEnd).map(function(person) {
 
               return <Entity key={person.id} data={person}
                   geometry="primitive: box"
+                  static-body
                   material={{src: `url(${person.image})`, color: that.state.color}}
                   onClick={that.changeColor} >
                   <Entity text={`text:  ${person.name}`}
@@ -239,12 +249,13 @@ class BoilerplateScene extends React.Component {
                 position={datamap[2].circlePosition}
                 visible={!that.state.pyramidVisibility}
                 >
-              <Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[2].datasq}`} direction="alternate" begin="5000"/>
+              {/*<Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[2].datasq}`} direction="alternate" begin="5000"/>*/}
 
               {datamap[2].users.slice(datamap[2].circleSliceStart, datamap[2].circleSliceEnd).map(function(person) {
 
                 return <Entity key={person.id} data={person}
                     geometry="primitive: box"
+                    static-body
                     material={{src: `url(${person.image})`, color: that.state.color}}
                     onClick={that.changeColor} >
                     <Entity text={`text:  ${person.name}`}
@@ -257,8 +268,6 @@ class BoilerplateScene extends React.Component {
                 </Entity> })}
 
                 {/*pyramids and mirrored pyramids*/}
-
-
 
                 {/* pyramid 1 */}
 
@@ -273,8 +282,9 @@ class BoilerplateScene extends React.Component {
                     {datamap[0].users.slice(datamap[0].pyramidSliceStart, datamap[0].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
-                        material={{src: `url(${person.image})`, color: that.state.color}}
-                        onClick={that.changeColor} >
+                        static-body
+                        material={{src: `url(${person.image})`, color: 'orange'}}
+                        onClick={() => {that.nameGame(person.name)} } >
                       </Entity>
                     })}
                   </Entity>
@@ -292,9 +302,10 @@ class BoilerplateScene extends React.Component {
                     {datamap[0].users.slice(datamap[0].pyramidSliceStart, datamap[0].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
+                        static-body
                         material={{src: `url(${person.image})`, color: that.state.color}}
                         onClick={that.changeColor} >
-                        <Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>
+                        {/*<Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>*/}
                       </Entity>
                     })}
                   </Entity>
@@ -312,6 +323,7 @@ class BoilerplateScene extends React.Component {
                     {datamap[1].users.slice(datamap[1].pyramidSliceStart, datamap[1].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
+                        static-body
                         material={{src: `url(${person.image})`, color: that.state.color}}
                         onClick={that.changeColor} >
                       </Entity>
@@ -328,9 +340,10 @@ class BoilerplateScene extends React.Component {
                     {datamap[1].users.slice(datamap[1].pyramidSliceStart, datamap[1].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
+                        static-body
                         material={{src: `url(${person.image})`, color: that.state.color}}
                         onClick={that.changeColor} >
-                        <Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>
+                        {/*<Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>*/}
                       </Entity>
                     })}
                   </Entity>
@@ -346,6 +359,7 @@ class BoilerplateScene extends React.Component {
                     {datamap[2].users.slice(datamap[2].pyramidSliceStart, datamap[2].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
+                        static-body
                         material={{src: `url(${person.image})`, color: that.state.color}}
                         onClick={that.changeColor} >
                       </Entity>
@@ -362,9 +376,10 @@ class BoilerplateScene extends React.Component {
                     {datamap[2].users.slice(datamap[2].pyramidSliceStart, datamap[2].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
+                        static-body
                         material={{src: `url(${person.image})`, color: that.state.color}}
                         onClick={that.changeColor} >
-                        <Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>
+                        {/*<Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>*/}
                       </Entity>
                     })}
                   </Entity>

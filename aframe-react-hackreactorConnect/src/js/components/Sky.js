@@ -1,5 +1,8 @@
 import {Entity} from 'aframe-react';
 import React from 'react';
+// import 'aframe-extras';
+// var extras = require('aframe-extras');
+// extras.registerAll();
 
 export default props => (
   <Entity geometry={{primitive: 'sphere', radius: 100}}
