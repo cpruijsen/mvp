@@ -28,8 +28,21 @@ Prompts/alerts will break the app, as you can't have such DOM events in VR.
 - layout doesn't work directly on text entities, one needs to render primitives, which can have child text entities to indicate the key value.
 - Click-handler must be on the primitive.
 
+3D rendering (especially when using react to further abstract from the DOM) is tricky with nodes.
+
+For example, one might want to dynamically position a keyboard based on player position.
+One might think (based on the docs):
+if(document.getElementById('camera')) {
+  var camera = document.querySelector('a-entity[camera]').components.camera.camera;
+  console.log(camera);
+logs => `T…E.PerspectiveCamera` which is a DOM node without the aframe positioning you were hoping to access.
+
+What does work: [in progress]
+
 ### dependencies
 
 It is very important to check which version of aframe you're running. I was using Aframe v0.2.x which requires Extras v1.x -- but npm install for Extras automatically installs Extras v2.x. Result: physics not working and no helpful errors at all (and a good amount of hours lost...).
 
 Considering this is a new and fast-developing technology this is not uncommon.
+
+###

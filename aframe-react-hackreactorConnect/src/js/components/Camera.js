@@ -5,11 +5,10 @@ var extras = require('aframe-extras');
 extras.registerAll();
 
 export default props => (
-  <Entity>
+  <Entity id="cameraEnclosed" position="0 0 0">
     <Entity
       id="camera"
-      position="0 0 0"
-      camera="active:true"
+      camera="" // can use multiple cameras with active: true // false
       universal-controls=""
       // kinematic-body=""
       // `jump-ability="enableDoubleJump: true; distance: 2.5;"

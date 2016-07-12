@@ -30,24 +30,18 @@ class BoilerplateScene extends React.Component {
       winVisible: false,
       instructionVisible: false,
       errorVisible: false,
+      errorScoreVisible: false,
+      hintVisible: false,
+      hintName: '',
+      hintNameIndex: 0,
       loseVisible: false,
       successVisible: false,
+      currentNameStringVisible: false,
       currentPerson: 'Test User', // set this to the user on click
       nameString: '',
       keyboardVisible: false
     }
   }
-
-  changeColor = () => {
-    const colors = ['orange', 'yellow', 'green', 'blue', 'white'];
-    this.setState({
-      color: colors[Math.floor(Math.random() * colors.length)],
-    });
-  };
-
-  togglePyramidVisibility = () => {
-    this.setState({pyramidVisibility: !this.state.pyramidVisibility});
-  };
 
   startNameGame = (personName) => {
     this.setState({currentPerson: personName});
@@ -55,6 +49,7 @@ class BoilerplateScene extends React.Component {
     // setting visibility of camera overlays and keyboard
     this.setState({instructionVisible: true});
     this.setState({keyboardVisible: true});
+    this.setState({currentNameStringVisible: true});
     this.setState({errorVisible: false});
     this.setState({successVisible: false});
     this.setState({winVisible: false});
@@ -62,26 +57,29 @@ class BoilerplateScene extends React.Component {
   };
 
   nameGame = () => {
-    var name = this.state.nameString;
-    var currentPerson = this.state.currentPerson;
-    var currentPersonFirstName = currentPerson.slice(0, currentPerson.indexOf(' '));
-    if (name === currentPerson) {
+    var name = this.state.nameString.toLowerCase();
+    var currentPerson = this.state.currentPerson.toLowerCase();
+    var currentPersonFirstName = currentPerson.slice(0, currentPerson.indexOf(' ');
+    if (name === currentPersonFirstName) {
       this.setState({score: this.state.score + 1});
-      if (this.state.score > 9) {
+      if (this.state.score > 4) {
         this.setState({winVisible: true});
       }
       this.setState({successVisible: true});
     } else {
       this.setState({errorScore: this.state.errorScore + 1});
-      if (this.state.errorScore > 9) {
+      if (this.state.errorScore > 4) {
         this.setState({loseVisible: true});
       } else {
         this.setState({errorVisible: true});
+        this.setState({errorScoreVisible: true});
       }
-      console.log(currentPersonFirstName, ' is not ', name);
     }
     this.setState({keyboardVisible: false});
     this.setState({instructionVisible: false});
+    this.setState({hintNameIndex: 0});
+    this.setState({hintName: ''});
+    this.setState({hintVisible: false});
   };
 
   addCharToNameString = (char) => {
@@ -89,14 +87,23 @@ class BoilerplateScene extends React.Component {
       return this.removeCharFromNameString();
     } else if (char === 'ENTR') {
       return this.nameGame();
-    } else if (char === 'SPACE') {
+    } else if (char === 'SPACE') { // removed spaces for now, no need.
       char = ' ';
+    } else if (char === 'HINT') { 
+      return this.getHint();
     }
     this.setState({nameString: this.state.nameString + char});
   };
 
   removeCharFromNameString = () => {
     this.setState( {nameString: this.state.nameString.slice(0, this.state.nameString.length-1) });
+  };
+
+  getHint = () => {
+    this.setState({hintVisible: true});
+    var newChar = this.state.currentPerson.slice(this.state.hintNameIndex, this.state.hintNameIndex + 1);
+    this.setState({hintName: this.state.hintName + newChar});
+    this.setState({hintNameIndex: this.state.hintNameIndex + 1});
   };
 
   render () {
@@ -125,9 +132,17 @@ class BoilerplateScene extends React.Component {
         obj[i].circlePosition = 0;
         obj[i].changePosForCylinder = function() {
           this.circleIterator--;
-          var z = i * 10 - 10; // so each dataset has a unique rendering position for the cylinders
+          // TODO: make cylinder rendering actually circular
+          if (i < len / 2) {
+            var x = -(i * 5);
+            var z = -(i * 2.5 - 10);
+          } else {
+            var x = i * 5;
+            var z = i * 2.5 - 10;
+          }
+           // so each dataset has a unique rendering position for the cylinders
           var position = this.dataRangeCircles[this.circleIterator];
-          this.circlePosition = `10 ${position} ${z}`;
+          this.circlePosition = `${x} ${position} ${z}`;
           if (this.circleIterator === 0) {
             this.circleIterator = this.numCircles;
           } // at the end of the function to fix before any future events
@@ -146,81 +161,6 @@ class BoilerplateScene extends React.Component {
             this.circleSliceEnd = this.circleSliceStart + 10;
           }
         };
-        // pyramids and mirrored pyramids
-        obj[i].sliceArr = [];
-        obj[i].numBoxesUsedInPyramid = 0;
-        obj[i].leftOverBoxes = 0;
-        obj[i].pyramidCurrentN =  0;
-        obj[i].pyramidPosition = 0;
-        obj[i].pyramidMirroredPosition = 0;
-        obj[i].pyramidSliceStart = 0;
-        obj[i].pyramidSliceEnd = 0;
-        obj[i].pyramidIterator = 0;
-        obj[i].calculatePyramid = function(n, base, count) {
-          var count = count || 1;
-          var base = base || 2;
-          if (count === n) {
-            this.numBoxesUsedInPyramid = count;
-            this.leftOverBoxes = n - count;
-            this.sliceArr.push(count);
-            return base-1;
-          } else if (count > n) {
-            return base - 2;
-          } else {
-            this.numBoxesUsedInPyramid = count;
-            this.leftOverBoxes = n - count;
-            this.sliceArr.push(count);
-            return this.calculatePyramid(n, base + 1, count + base*base);
-          }
-        };
-        obj[i].calculatePyramid(obj[i].len);
-        obj[i].sliceArr = obj[i].sliceArr.reverse();
-        obj[i].pyramidPositionX = -10;
-        obj[i].pyramidPositionY = 1; // manipulates distance between pyramids
-        obj[i].pyramidPositionZ = i * 10 -20;
-        obj[i].pyramidMirroredPositionX = -10;
-        obj[i].pyramidMirroredPositionY = 0;
-        obj[i].pyramidMirroredPositionZ = i * 10 -20;
-        obj[i].determineNforPyramid = function() {
-          if (!this.sliceArr[this.pyramidIterator]) {
-            this.pyramidIterator = 0; // reset on mirrored pyramid creation.
-          }
-          this.pyramidSliceStart = this.numBoxesUsedInPyramid - this.sliceArr[this.pyramidIterator];
-          if (this.sliceArr[this.pyramidIterator+1]) {
-            this.pyramidSliceEnd = this.numBoxesUsedInPyramid - this.sliceArr[this.pyramidIterator+1];
-          } else {
-            this.pyramidSliceEnd = this.numBoxesUsedInPyramid; // so we don't get NaN
-          }
-          this.pyramidIterator++;
-          this.pyramidCurrentN = Math.sqrt(this.pyramidSliceEnd - this.pyramidSliceStart);
-        };
-
-        obj[i].changePositionForPyramid = function(options) {
-          options = options || {};
-          if (options.mirrored) { // X and Z could go +1 instead ?
-
-            if (this.pyramidIterator === 0) {
-              this.pyramidMirroredPositionX = -10;
-              this.pyramidMirroredPositionY = 0;
-              this.pyramidMirroredPositionZ = i * 10 -20;
-            }
-
-            this.pyramidMirroredPositionX +=1;
-            this.pyramidMirroredPositionY -=1;
-            this.pyramidMirroredPositionZ +=1;
-            this.pyramidMirroredPosition = `${this.pyramidMirroredPositionX} ${this.pyramidMirroredPositionY} ${this.pyramidMirroredPositionZ}`
-          }
-          if (this.pyramidIterator === 0) {
-            this.pyramidPositionX = -10;
-            this.pyramidPositionY = 1;
-            this.pyramidPositionZ = i * 10 -20;
-          }
-          this.pyramidPositionX +=1;
-          this.pyramidPositionY +=1;
-          this.pyramidPositionZ +=1;
-          this.pyramidPosition = `${this.pyramidPositionX} ${this.pyramidPositionY} ${this.pyramidPositionZ}`
-
-        };
         // other shapes...
       }
       return obj;
@@ -228,19 +168,25 @@ class BoilerplateScene extends React.Component {
     var datamap = createDataMapObj();
 
     var keyBoard = {
-      leftKeyBoard: ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Z', 'X', 'C', 'V', 'T', 'SPACE' , 'DEL'],
-      rightKeyBoard: ['P', 'O', 'I', 'U', 'H', 'J', 'K', 'L', 'B', 'G', 'M', 'N', 'Y', 'SPACE' , 'ENTR']
+      leftKeyBoard: ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Z', 'X', 'C', 'V', 'T', 'ENTR' , 'DEL', 'HINT'],
+      rightKeyBoard: ['P', 'O', 'I', 'U', 'H', 'J', 'K', 'L', 'B', 'G', 'M', 'N', 'Y', 'DEL' , 'ENTR', 'HINT']
     };
-    var keyBoardStartPosition = 0;
+    var keyBoardStartPosition = -1;
     var keyBoardPosition;
-    var setKeyBoardPosition = function() {
-    // TODO: improve.
-      keyBoardStartPosition++;
-      keyBoardPosition = `0 ${keyBoardStartPosition} 0`;
-    }
+    var keyBoardRotation = "0 0 0";
+    var setKeyBoardPosition = function() {    // TODO: improve.
+      // camera - how to get node access?
+      // try document.querySelector('a-entity[camera]').object3D.position
+
+      keyBoardStartPosition +=1.5;
+      keyBoardPosition = `${keyBoardStartPosition} 0 0`;
+      if (keyBoardStartPosition > 0.5) {
+        keyBoardRotation = "0 -90 0";
+      }
+    };
 
     return (
-      <Scene >
+      <Scene>
         {/*  NOTE: disabling physics, as there is no 'real need' in the current implementation and there are performance implications.
 
           scene: physics="debug: true" // also kinematic-body on camera
@@ -253,13 +199,23 @@ class BoilerplateScene extends React.Component {
                 static-body
                 scale="1 1 -1"/>
         */}
-
+        {/* TODO: modularize || template the below */}
         <Camera>
           <Cursor/>
-          <Entity text={`text: current score = ${that.state.score}`}
+          <Entity text={`text: current score = ${this.state.score}`}
                   material="color: #66E1B4"
                   scale="0.1 0.1 0"
                   position="0.8 0.65 -1"  />
+          <Entity text={`text: current name = ${this.state.nameString}`}
+                  material="color: #66E1B4"
+                  scale="0.1 0.1 0"
+                  visible={this.state.currentNameStringVisible}
+                  position="-0.25 0.65 -1"  />
+          <Entity text={`text: HINT = ${this.state.hintName}`}
+                  material="color: #000080"
+                  scale="0.1 0.2 0"
+                  visible={this.state.hintVisible}
+                  position="-0.25 0.35 -1"  />
           <Entity text={`text: You win! Champ.`}
                   material="color: #FFD700"
                   scale="0.5 0.5 0"
@@ -274,6 +230,11 @@ class BoilerplateScene extends React.Component {
                   material="color: #af111c"
                   scale="0.1 0.1 0"
                   visible={this.state.errorVisible}
+                  position="0.5 0.1 -1" />
+          <Entity text={`text: Errors = ${this.state.errorScore}`}
+                  material="color: #af111c"
+                  scale="0.1 0.1 0"
+                  visible={this.state.errorScoreVisible}
                   position="0.5 0.5 -1" />
           <Entity text={`text: Great! Keep Going.`}
                   material="color: #af111c"
@@ -292,14 +253,7 @@ class BoilerplateScene extends React.Component {
         <Entity light={{type: 'directional', intensity: 0.5}} position={[-1, 1, 0]}/>
         <Entity light={{type: 'directional', intensity: 1}} position={[1, 1, 0]}/>
 
-        {/* color toggle */}
-        <Entity static-body onClick={that.ChangeColor} geometry="primitive: box"   material="color: grey" position="-8 0 1">
-          <Entity text={`text: ChangeColor Click Me`}
-                  position="0 1 0"
-                  material="color: #af111c"
-                  scale="0.1 0.1 0"
-                  />
-        </Entity>
+
 
         {/* keyboard for nameGame
           TODO: need to figure out optimal spot
@@ -308,17 +262,20 @@ class BoilerplateScene extends React.Component {
 
         {_.map(keyBoard, function(side) {
           setKeyBoardPosition();
-          return <Entity layout="type: 'box', margin: 1, columns: 4"
-                         position={keyBoardPosition} >
+          return <Entity layout={{type: 'box', margin: '0.35', columns: '4'}}
+                         position={keyBoardPosition}
+                         rotation={keyBoardRotation}
+                         >
             {side.map(function(char) {
              return <Entity key={char} geometry="primitive: box"
+                            scale="0.35 0.35 0.01"
                             material="color: grey"
                             visible={that.state.keyboardVisible}
                             onClick={() => that.addCharToNameString(char)} >
                <Entity text={`text: ${char}`}
                  material="color: #FFD700"
-                 position="0 0 0.5"
-                 scale="0.1 0.1 0"
+                 position="0. 0 0.75"
+                 scale="0.2 0.2 1"
                  visible={that.state.keyboardVisible}
                 />
              </Entity>

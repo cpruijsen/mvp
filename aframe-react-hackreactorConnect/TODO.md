@@ -10,6 +10,7 @@
 - [DONE] render more than one complex layout shape
 - [] Infoboxes / animated fields per person/cube
 **currently no point, as we don't have more data.**
+- render cylinders in a circle, for easier access
 
 ### gamefield
 - [DONE ] change dependency to either A-frame master (check if it works with Aframe-react) or Extras v1.x (to work with aframe v0.2.x)
@@ -26,12 +27,18 @@
 - [] create a leaderboard // score for auth users
 
 ### stretch:
-- [] add an api integration ( linkedin ? ) and a room for displaying GET data.
+- [] add an api integration ( https://developer.github.com/v3/search/ ? ) and a room for displaying GET data.
+- [] add https://www.fullcontact.com/developer/
 
 ### Misc:
 - [] consolidate dependency management
+- [] modularize components in separate files
 - [DONE] create readme with step-by-step / lessons
-- [] request more (and richer) data from HR
+- [DONE] request more data from HR
+- [DONE] obtain richer data (github handles etc.)
+
+**https://github.com/mikejonas/alumConnect for endpoints on /db/...**
+
 - [DONE] rotate text based on player position (so always visible from front)
 * I'm not too happy with look-at performance. Might be related to the text entity colliding somehow with the boxes.
 
@@ -47,7 +54,9 @@
 - [DONE] render a keyboard for the player to answer from
 - [DONE] keyboard has a-z and delete/submit/space
 - [DONE] game end on clicking submit
-- [] polish and make fun to play ;)
+- [DONE] polish and make fun to play ;)
+- [DONE] enable hints, improve game messages
+- [] implement a max-hints or penalty for using hints
 
 ### future (super) Stretch
 - [] Clarif.ai API for image tags, implement a memory type game where you have to select similar people
