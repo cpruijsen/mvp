@@ -5,7 +5,7 @@
 
 Note: I have 240+ cubes rendering dynamically, in layouts, with pictures pulled from a third party site.
 
-- to that note, rendering my entire dataset at once (~800 pictures w names etc) in a custom layout is a challenge.
+- to that note, rendering my entire dataset at once (~800 pictures w names etc) in a custom layout is a challenge. **the app will literally freeze**
 
 A better approach is to render only on command (this could be with a click handler, by stepping into another world, etc...)
 
@@ -19,7 +19,7 @@ A better approach is to render only on command (this could be with a click handl
 
 ### text inputs
 - prompts/alerts will break the app.
-- 
+-
 
 ### dependencies
 - it is very important to check which version of aframe you're running. I was using Aframe v0.2.x which requires Extras v1.x -- but npm install for Extras automatically installs Extras v2.x. Result: physics not working and no helpful errors at all (and a good amount of hours lost...).

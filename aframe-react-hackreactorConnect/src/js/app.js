@@ -25,7 +25,10 @@ class BoilerplateScene extends React.Component {
     this.state = {
       color: 'yellow',
       pyramidVisibility: false,
-      score: 0
+      score: 0,
+      errorScore: 0,
+      winVisible: false,
+      errorVisible: false
       // layout: 'circle',
       // cohort: 0
     }
@@ -46,8 +49,16 @@ class BoilerplateScene extends React.Component {
     console.log(personName);
     var name = prompt('namegame! who is this person?');
     if (name === personName) {
+      this.setState({score: this.state.score + 1});
       console.log('success!')
+      if (this.state.score > 9) {
+        this.setState({winVisible: true});
+      }
     } else {
+      this.setState({errorScore: this.state.errorScore + 1});
+      if (this.state.errorScore > 9) {
+        this.setState({errorVisible: true});
+      }
       console.log('wrong! ' + personName + 'is not called ' + name);
     }
   };
@@ -81,6 +92,9 @@ class BoilerplateScene extends React.Component {
           var z = i * 10 - 10; // so each dataset has a unique rendering position for the cylinders
           var position = this.dataRangeCircles[this.circleIterator];
           this.circlePosition = `10 ${position} ${z}`;
+          if (this.circleIterator === 0) {
+            this.circleIterator = this.numCircles;
+          } // at the end of the function to fix before any future events
         };
         obj[i].determineSlicingCylinder = function(options, i) {
           if (options.all) { // renders remaining people
@@ -110,17 +124,17 @@ class BoilerplateScene extends React.Component {
           var count = count || 1;
           var base = base || 2;
           if (count === n) {
-            obj[i].numBoxesUsedInPyramid = count;
-            obj[i].leftOverBoxes = n - count;
-            obj[i].sliceArr.push(count);
+            this.numBoxesUsedInPyramid = count;
+            this.leftOverBoxes = n - count;
+            this.sliceArr.push(count);
             return base-1;
           } else if (count > n) {
             return base - 2;
           } else {
-            obj[i].numBoxesUsedInPyramid = count;
-            obj[i].leftOverBoxes = n - count;
-            obj[i].sliceArr.push(count);
-            return obj[i].calculatePyramid(n, base + 1, count + base*base);
+            this.numBoxesUsedInPyramid = count;
+            this.leftOverBoxes = n - count;
+            this.sliceArr.push(count);
+            return this.calculatePyramid(n, base + 1, count + base*base);
           }
         };
         obj[i].calculatePyramid(obj[i].len);
@@ -132,51 +146,56 @@ class BoilerplateScene extends React.Component {
         obj[i].pyramidMirroredPositionY = 0;
         obj[i].pyramidMirroredPositionZ = i * 10 -20;
         obj[i].determineNforPyramid = function() {
-          if (!obj[i].sliceArr[obj[i].pyramidIterator]) {
-            obj[i].pyramidIterator = 0; // reset on mirrored pyramid creation.
+          if (!this.sliceArr[this.pyramidIterator]) {
+            this.pyramidIterator = 0; // reset on mirrored pyramid creation.
           }
-
-          obj[i].pyramidSliceStart = obj[i].numBoxesUsedInPyramid - obj[i].sliceArr[obj[i].pyramidIterator];
-          if (obj[i].sliceArr[obj[i].pyramidIterator+1]) {
-            obj[i].pyramidSliceEnd = obj[i].numBoxesUsedInPyramid - obj[i].sliceArr[obj[i].pyramidIterator+1];
+          this.pyramidSliceStart = this.numBoxesUsedInPyramid - this.sliceArr[this.pyramidIterator];
+          if (this.sliceArr[this.pyramidIterator+1]) {
+            this.pyramidSliceEnd = this.numBoxesUsedInPyramid - this.sliceArr[this.pyramidIterator+1];
           } else {
-            obj[i].pyramidSliceEnd = obj[i].numBoxesUsedInPyramid; // so we don't get NaN
+            this.pyramidSliceEnd = this.numBoxesUsedInPyramid; // so we don't get NaN
           }
-          obj[i].pyramidIterator++;
-          obj[i].pyramidCurrentN = Math.sqrt(obj[i].pyramidSliceEnd - obj[i].pyramidSliceStart);
+          this.pyramidIterator++;
+          this.pyramidCurrentN = Math.sqrt(this.pyramidSliceEnd - this.pyramidSliceStart);
         };
 
         obj[i].changePositionForPyramid = function(options) {
           options = options || {};
           if (options.mirrored) { // X and Z could go +1 instead ?
-            obj[i].pyramidMirroredPositionX +=1;
-            obj[i].pyramidMirroredPositionY -=1;
-            obj[i].pyramidMirroredPositionZ +=1;
-            obj[i].pyramidMirroredPosition = `${obj[i].pyramidMirroredPositionX} ${obj[i].pyramidMirroredPositionY} ${obj[i].pyramidMirroredPositionZ}`
+
+            if (this.pyramidIterator === 0) {
+              this.pyramidMirroredPositionX = -10;
+              this.pyramidMirroredPositionY = 0;
+              this.pyramidMirroredPositionZ = i * 10 -20;
+            }
+
+            this.pyramidMirroredPositionX +=1;
+            this.pyramidMirroredPositionY -=1;
+            this.pyramidMirroredPositionZ +=1;
+            this.pyramidMirroredPosition = `${this.pyramidMirroredPositionX} ${this.pyramidMirroredPositionY} ${this.pyramidMirroredPositionZ}`
           }
-          obj[i].pyramidPositionX +=1; // on second iteration (mirrored) this shouldn't affect
-          obj[i].pyramidPositionY +=1; // rendering of the first pyramid.
-          obj[i].pyramidPositionZ +=1;
-          obj[i].pyramidPosition = `${obj[i].pyramidPositionX} ${obj[i].pyramidPositionY} ${obj[i].pyramidPositionZ}`
+          if (this.pyramidIterator === 0) {
+            this.pyramidPositionX = -10;
+            this.pyramidPositionY = 1;
+            this.pyramidPositionZ = i * 10 -20;
+          }
+          this.pyramidPositionX +=1;
+          this.pyramidPositionY +=1;
+          this.pyramidPositionZ +=1;
+          this.pyramidPosition = `${this.pyramidPositionX} ${this.pyramidPositionY} ${this.pyramidPositionZ}`
+
         };
-
         // other shapes...
-
       }
       return obj;
     };
     var datamap = createDataMapObj();
-    // {0: { }, 1: {}, 2: {}}
-    // where 0:{group_name, group_id, users, len, ... }
 
     return (
       <Scene >
+        {/*  NOTE: disabling physics, as there is no 'real need' in the current implementation and there are performance implications.
 
-        {/*
-          NOTE: disabling physics, as there is no 'real need' in the current implementation and there are performance implications.
-
-          scene: physics="debug: true"
-
+          scene: physics="debug: true" // also kinematic-body on camera
           <Entity geometry={{primitive: 'plane', width: 50, height: 50}}
                 material={{color: "#395D33", shader: 'flat'}}
                 transparent="true"
@@ -187,14 +206,22 @@ class BoilerplateScene extends React.Component {
                 scale="1 1 -1"/>
         */}
 
-        <Camera><Cursor/>
+        <Camera>
+          <Cursor/>
           <Entity text={`text: current score = ${that.state.score}`}
                   material="color: #66E1B4"
-                  // look-at="#camera"
-                  // visible="true"
                   scale="0.1 0.1 0"
-                  position="0.8 0.65 -1"
-                  />
+                  position="0.8 0.65 -1"  />
+                <Entity text={`text: You win! Champ.`}
+                  material="color: #FFD700"
+                  scale="0.5 0.5 0"
+                  visible={this.state.winVisible}
+                  position="0.5 0.5 -1"  />
+                <Entity text={`text: You lose! Try again.`}
+                  material="color: #af111c"
+                  scale="0.1 0.1 0"
+                  visible={this.state.errorVisible}
+                  position="0.5 0.5 -1"  />
         </Camera>
         <Sky/>
 
@@ -209,77 +236,78 @@ class BoilerplateScene extends React.Component {
 
         {/* cylinders */}
 
-        {/* cylinder 1 */}
-        {datamap[0].dataRangeCircles.map(function(i) {
-          datamap[0].changePosForCylinder();
-          datamap[0].determineSlicingCylinder({all: true}, i);
+        {_.map(datamap, function(cohort) {
+          return cohort.dataRangeCircles.map(function(i) {
+            cohort.changePosForCylinder();
+            cohort.determineSlicingCylinder({all: true}, i);
 
-          return <Entity
-            layout={{type: 'circle', radius: `${datamap[0].datacb}`}} position={datamap[0].circlePosition}
-            visible={!that.state.pyramidVisibility}
+            return <Entity
+              layout={{type: 'circle', radius: `${cohort.datacb}`}} position={cohort.circlePosition}
+              visible={!that.state.pyramidVisibility} >
 
-            >
-          {/*<Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[0].datasq}`} direction="alternate" begin="5000"/>*/}
+            {/*<Animation attribute="layout.radius" repeat="indefinite" to={`${cohort.datasq}`} direction="alternate" begin="5000"/>*/}
 
-          {datamap[0].users.slice(datamap[0].circleSliceStart, datamap[0].circleSliceEnd).map(function(person) {
+            {cohort.users.slice(cohort.circleSliceStart, cohort.circleSliceEnd).map(function(person) {
 
-            return <Entity key={person.id} data={person}
-                geometry="primitive: box"
-
-                material={{src: `url(${person.image})`, color: that.state.color}}
-                onClick={that.changeColor} >
-                <Entity text={`text:  ${person.name}`}
-                        material="color: #66E1B4"
-                        scale="0.3 0.3 0.3"
-                        position="0 .5 -1"
-                        look-at="#camera"
-                        visible="true" />
-              </Entity>; })}
-            </Entity> })}
+        // note: enabling text will cause the app to freeze,
+        // as there are ~800 pictures being rendered, plus text (from the JSON)
+              return <Entity key={person.id} data={person}
+                  geometry="primitive: box"
+                  material={{src: `url(${person.image})`, color: that.state.color}}
+                  onClick={that.changeColor} >
+                  <Entity text={`text:  ${person.name}`}
+                          material="color: #66E1B4"
+                          scale="0.3 0.3 0.3"
+                          position="0 .5 -1"
+                          look-at="#camera"
+                          visible="false" />
+                </Entity>; })}
+              </Entity> })
+        })}
 
                 {/*pyramids and mirrored pyramids*/}
+                {_.map(datamap, function(cohort) {
+                  return cohort.sliceArr.map(function(i) {
+                    cohort.determineNforPyramid();
+                    cohort.changePositionForPyramid();
+                      return <Entity layout={{type: 'box', margin: '2', columns: `${cohort.pyramidCurrentN}`}}
+                        position={cohort.pyramidPosition}
+                        rotation="90 0 0"
+                        visible={that.state.pyramidVisibility} >
 
-                {/* pyramid 1 */}
-
-                {datamap[0].sliceArr.map(function(i) {
-                  datamap[0].determineNforPyramid();
-                  datamap[0].changePositionForPyramid();
-                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[0].pyramidCurrentN}`}}
-                      position={datamap[0].pyramidPosition}
-                      rotation="90 0 0"
-                      visible={that.state.pyramidVisibility} >
-
-                    {datamap[0].users.slice(datamap[0].pyramidSliceStart, datamap[0].pyramidSliceEnd).map(function(person) {
-                      return <Entity key={person.id}
-                        geometry="primitive: box"
-
-                        material={{src: `url(${person.image})`, color: 'orange'}}
-                        onClick={() => {that.nameGame(person.name)} } >
-                      </Entity>
-                    })}
-                  </Entity>
+                      {cohort.users.slice(cohort.pyramidSliceStart, cohort.pyramidSliceEnd).map(function(person) {
+                        return <Entity key={person.id}
+                          geometry="primitive: box"
+                          material={{src: `url(${person.image})`, color: 'orange'}}
+                          onClick={() => {that.nameGame(person.name)} } >
+                        </Entity>
+                      })}
+                    </Entity>
+                  })
                 })}
 
-                {/*// === MIRRORED PYRAMID 1 === //*/}
-                {datamap[0].sliceArr.map(function(i) {
-                  datamap[0].determineNforPyramid();
-                  datamap[0].changePositionForPyramid({mirrored: true});
-                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[0].pyramidCurrentN}`}}
-                      position={datamap[0].pyramidMirroredPosition}
-                      rotation="90 0 0"
-                      visible={that.state.pyramidVisibility} >
+              {/* // === MIRRORED PYRAMIDS === // */}
+              {/* {_.map(datamap, function(cohort) {
+                    cohort.sliceArr.map(function(i) {
+                      cohort.determineNforPyramid();
+                      cohort.changePositionForPyramid({mirrored: true});
+                        return <Entity layout={{type: 'box', margin: '2', columns: `${cohort.pyramidCurrentN}`}}
+                          position={cohort.pyramidMirroredPosition}
+                          rotation="90 0 0"
+                          visible={that.state.pyramidVisibility} >
 
-                    {datamap[0].users.slice(datamap[0].pyramidSliceStart, datamap[0].pyramidSliceEnd).map(function(person) {
-                      return <Entity key={person.id}
-                        geometry="primitive: box"
+                        {cohort.users.slice(cohort.pyramidSliceStart, cohort.pyramidSliceEnd).map(function(person) {
+                          return <Entity key={person.id}
+                            geometry="primitive: box"
 
-                        material={{src: `url(${person.image})`, color: that.state.color}}
-                        onClick={that.changeColor} >
-                        {/*<Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>*/}
+                            material={{src: `url(${person.image})`, color: that.state.color}}
+                            onClick={that.changeColor} >
+                            <Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>
+                          </Entity>
+                        })}
                       </Entity>
-                    })}
-                  </Entity>
-                })}
+                    })
+                })} */}
 
       </Scene>
     );
