@@ -10,11 +10,9 @@ export default props => (
       id="camera"
       position="0 0 0"
       camera="active:true"
-      //look-controls=""
-      //wasd-controls=""
       universal-controls=""
-      //kinematic-body=""
-      //jump-ability="enableDoubleJump: true; distance: 2;"
+      // kinematic-body=""
+      // jump-ability="enableDoubleJump: true; distance: 2.5;"
       // velocity="0 0 0"
       {...props}/>
 

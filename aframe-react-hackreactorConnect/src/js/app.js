@@ -7,7 +7,7 @@ import 'aframe-extras';
 var extras = require('aframe-extras');
 extras.registerAll();
 import _ from 'underscore';
-import data from './data/data'
+import data from './data/allData'
 
 import {Animation, Entity, Scene} from 'aframe-react';
 import React from 'react';
@@ -169,10 +169,22 @@ class BoilerplateScene extends React.Component {
     // where 0:{group_name, group_id, users, len, ... }
 
     return (
-      // TODO: make physics work w/ jump and collision
-      // `kinematic-body` on camera, `static-body` on floor and Sky
-      // `physics` on Scene && canvas=""
-      <Scene>
+      <Scene >
+
+        {/*
+          NOTE: disabling physics, as there is no 'real need' in the current implementation and there are performance implications.
+
+          scene: physics="debug: true"
+
+          <Entity geometry={{primitive: 'plane', width: 50, height: 50}}
+                material={{color: "#395D33", shader: 'flat'}}
+                transparent="true"
+                opacity="100" // doesn't work atm...
+                position="0 -1 0"
+                rotation="-90 0 0"
+                static-body
+                scale="1 1 -1"/>
+        */}
 
         <Camera><Cursor/></Camera>
         <Sky/>
@@ -184,7 +196,7 @@ class BoilerplateScene extends React.Component {
         {/*insert other material here*/}
 
         {/* visible toggle */}
-        <Entity onClick={that.togglePyramidVisibility} geometry="primitive: box"  material="color: red" position="-10 0 1"> </Entity>
+        <Entity static-body onClick={that.togglePyramidVisibility} geometry="primitive: box"   material="color: red" position="-10 0 1"> </Entity>
 
         {/* cylinders */}
 
@@ -196,6 +208,7 @@ class BoilerplateScene extends React.Component {
           return <Entity
             layout={{type: 'circle', radius: `${datamap[0].datacb}`}} position={datamap[0].circlePosition}
             visible={!that.state.pyramidVisibility}
+
             >
           {/*<Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[0].datasq}`} direction="alternate" begin="5000"/>*/}
 
@@ -214,61 +227,6 @@ class BoilerplateScene extends React.Component {
                         visible="true" />
               </Entity>; })}
             </Entity> })}
-
-          {/* cylinder 2 */}
-
-          {datamap[1].dataRangeCircles.map(function(i) {
-            datamap[1].changePosForCylinder();
-            datamap[1].determineSlicingCylinder({all: true}, i);
-
-            return <Entity layout={{type: 'circle', radius: `${datamap[1].datacb}`}}
-              position={datamap[1].circlePosition}
-              visible={!that.state.pyramidVisibility} >
-            {/*<Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[1].datasq}`} direction="alternate" begin="5000"/>*/}
-
-            {datamap[1].users.slice(datamap[1].circleSliceStart, datamap[1].circleSliceEnd).map(function(person) {
-
-              return <Entity key={person.id} data={person}
-                  geometry="primitive: box"
-
-                  material={{src: `url(${person.image})`, color: that.state.color}}
-                  onClick={that.changeColor} >
-                  <Entity text={`text:  ${person.name}`}
-                          material="color: #66E1B4"
-                          scale="0.3 0.3 0.3"
-                          position="0 .5 -1"
-                          look-at="#camera"
-                          visible="true" />
-                </Entity>; })}
-              </Entity> })}
-
-            {/* cylinder 3 */}
-
-            {datamap[2].dataRangeCircles.map(function(i) {
-              datamap[2].changePosForCylinder();
-              datamap[2].determineSlicingCylinder({all: true}, i);
-
-              return <Entity layout={{type: 'circle', radius: `${datamap[2].datacb}`}}
-                position={datamap[2].circlePosition}
-                visible={!that.state.pyramidVisibility}
-                >
-              {/*<Animation attribute="layout.radius" repeat="indefinite" to={`${datamap[2].datasq}`} direction="alternate" begin="5000"/>*/}
-
-              {datamap[2].users.slice(datamap[2].circleSliceStart, datamap[2].circleSliceEnd).map(function(person) {
-
-                return <Entity key={person.id} data={person}
-                    geometry="primitive: box"
-
-                    material={{src: `url(${person.image})`, color: that.state.color}}
-                    onClick={that.changeColor} >
-                    <Entity text={`text:  ${person.name}`}
-                            material="color: #66E1B4"
-                            scale="0.3 0.3 0.3"
-                            position="0 .5 -1"
-                            look-at="#camera"
-                            visible="true" />
-                  </Entity>; })}
-                </Entity> })}
 
                 {/*pyramids and mirrored pyramids*/}
 
@@ -303,80 +261,6 @@ class BoilerplateScene extends React.Component {
                       visible={that.state.pyramidVisibility} >
 
                     {datamap[0].users.slice(datamap[0].pyramidSliceStart, datamap[0].pyramidSliceEnd).map(function(person) {
-                      return <Entity key={person.id}
-                        geometry="primitive: box"
-
-                        material={{src: `url(${person.image})`, color: that.state.color}}
-                        onClick={that.changeColor} >
-                        {/*<Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>*/}
-                      </Entity>
-                    })}
-                  </Entity>
-                })}
-
-                {/*pyramid 2*/}
-
-                {datamap[1].sliceArr.map(function(i) {
-                  datamap[1].determineNforPyramid();
-                  datamap[1].changePositionForPyramid();
-                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[1].pyramidCurrentN}`}} position={datamap[1].pyramidPosition}
-                      rotation="90 0 0"
-                      visible={that.state.pyramidVisibility}>
-
-                    {datamap[1].users.slice(datamap[1].pyramidSliceStart, datamap[1].pyramidSliceEnd).map(function(person) {
-                      return <Entity key={person.id}
-                        geometry="primitive: box"
-
-                        material={{src: `url(${person.image})`, color: that.state.color}}
-                        onClick={that.changeColor} >
-                      </Entity>
-                    })}
-                  </Entity>
-                })}
-
-                {/*// === MIRRORED PYRAMID 2 === //*/}
-                {datamap[1].sliceArr.map(function(i) {
-                  datamap[1].determineNforPyramid();
-                  datamap[1].changePositionForPyramid({mirrored: true});
-                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[1].pyramidCurrentN}`}} position={datamap[1].pyramidMirroredPosition} rotation="90 0 0" visible={that.state.pyramidVisibility} >
-
-                    {datamap[1].users.slice(datamap[1].pyramidSliceStart, datamap[1].pyramidSliceEnd).map(function(person) {
-                      return <Entity key={person.id}
-                        geometry="primitive: box"
-
-                        material={{src: `url(${person.image})`, color: that.state.color}}
-                        onClick={that.changeColor} >
-                        {/*<Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>*/}
-                      </Entity>
-                    })}
-                  </Entity>
-                })}
-
-                {/* pyramid 3 */}
-
-                {datamap[2].sliceArr.map(function(i) {
-                  datamap[2].determineNforPyramid();
-                  datamap[2].changePositionForPyramid();
-                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[2].pyramidCurrentN}`}} position={datamap[2].pyramidPosition} rotation="90 0 0" visible={that.state.pyramidVisibility}>
-
-                    {datamap[2].users.slice(datamap[2].pyramidSliceStart, datamap[2].pyramidSliceEnd).map(function(person) {
-                      return <Entity key={person.id}
-                        geometry="primitive: box"
-
-                        material={{src: `url(${person.image})`, color: that.state.color}}
-                        onClick={that.changeColor} >
-                      </Entity>
-                    })}
-                  </Entity>
-                })}
-
-                {/*// === MIRRORED PYRAMID 3 === //*/}
-                {datamap[2].sliceArr.map(function(i) {
-                  datamap[2].determineNforPyramid();
-                  datamap[2].changePositionForPyramid({mirrored: true});
-                    return <Entity layout={{type: 'box', margin: '2', columns: `${datamap[2].pyramidCurrentN}`}} position={datamap[2].pyramidMirroredPosition} rotation="90 0 0" visible={that.state.pyramidVisibility}>
-
-                    {datamap[2].users.slice(datamap[2].pyramidSliceStart, datamap[2].pyramidSliceEnd).map(function(person) {
                       return <Entity key={person.id}
                         geometry="primitive: box"
 
