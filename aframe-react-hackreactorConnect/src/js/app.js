@@ -45,7 +45,13 @@ class BoilerplateScene extends React.Component {
     }
   }
 
-  startNameGame = (personName) => {
+  startNameGame = (personName, personGitHub) => {
+
+    // if (this.state.currentPerson === personName) {
+    //   this.setState({currentPersonGitHubVisible: true});
+        //  this.setState({currentPersonGitHub: personGitHub});
+    // }
+
     this.setState({currentPerson: personName});
     this.setState({nameString: ''});
     // setting visibility of camera overlays and keyboard
@@ -82,6 +88,7 @@ class BoilerplateScene extends React.Component {
     this.setState({hintNameIndex: 0});
     this.setState({hintName: ''});
     this.setState({hintVisible: false});
+    // this.setState({currentPersonGitHubVisible: false})
   };
 
   addCharToNameString = (char) => {
@@ -107,6 +114,12 @@ class BoilerplateScene extends React.Component {
     this.setState({hintName: this.state.hintName + newChar});
     this.setState({hintNameIndex: this.state.hintNameIndex + 1});
   };
+
+  // fetchGitHub = () => {
+  //   var handle = this.state.currentPersonGitHub;
+  //   // NOTE: need to get a client ID etc for github and insert into fetch.
+  //
+  // };
 
   render () {
     // general internal
@@ -134,13 +147,12 @@ class BoilerplateScene extends React.Component {
         obj[i].circlePosition = 0;
         obj[i].changePosForCylinder = function() {
           this.circleIterator--;
-          // TODO: make cylinder rendering actually circular
-          if (i < len / 2) {
-            var x = -i*i;
-            var z = -i*i;
+          if ( i < len / 2) {
+            var x = -i;
+            var z = -5 + i * 3;
           } else {
-            var x = i*i;
-            var z = i*i;
+            var x = i;
+            var z = -24 + i*3;
           }
            // so each dataset has a unique rendering position for the cylinders
           var position = this.dataRangeCircles[this.circleIterator];
@@ -150,10 +162,9 @@ class BoilerplateScene extends React.Component {
           } // at the end of the function to fix before any future events
         };
         obj[i].determineSlicingCylinder = function(options, i) {
-          if (options.all) { // renders remaining people
+          if (options.all) {
             this.circleSliceStart += 10;
             if (i === this.numCircles - 1) {
-              // this makes for very ugly cylinders.
               this.circleSliceEnd = this.circleSliceStart + 10 + (this.len % 10);
             } else {
               this.circleSliceEnd = this.circleSliceStart + 10;
@@ -201,7 +212,10 @@ class BoilerplateScene extends React.Component {
                 static-body
                 scale="1 1 -1"/>
         */}
-        {/* TODO: modularize || template the below */}
+        {/*
+          TODO: modularize || template the below
+          TODO: add a 'click twice, show github profile! mention after click1'
+        */}
         <Camera>
           <Cursor/>
           <Entity text={`text: current score = ${this.state.score}`}
@@ -222,7 +236,7 @@ class BoilerplateScene extends React.Component {
                   material="color: #FFD700"
                   scale="0.5 0.5 0"
                   visible={this.state.winVisible}
-                  position="0.5 0.5 -1"  />
+                  position="0 0 -1"  />
           <Entity text={`text: You lose! Try again.`}
                   material="color: #af111c"
                   scale="0.1 0.1 0"
@@ -255,6 +269,20 @@ class BoilerplateScene extends React.Component {
         <Entity light={{type: 'directional', intensity: 0.5}} position={[-1, 1, 0]}/>
         <Entity light={{type: 'directional', intensity: 1}} position={[1, 1, 0]}/>
 
+        {/* github profile pane */}
+      {/*<Entity
+        id="gitHubProfilePanel"
+        visible={currentPersonGitHubVisible}
+        geometry="primitive: box, " >
+
+        <Entity
+          id="gitHubProfilePanelText"
+          scale="0.35 0.35 0.01"
+          material="color: grey"
+          text={`text: ${currentPersonGitHub}`}
+          // TODO: change the text=... to a render of the github profile.
+          />
+    </Entity>*/}
 
 
         {/* keyboard for nameGame
@@ -285,7 +313,7 @@ class BoilerplateScene extends React.Component {
           </Entity>
         })}
 
-        {/* cylinders */}
+        {/* cylinders - disabled animation for performance. */}
 
         {_.map(datamap, function(cohort) {
           return cohort.dataRangeCircles.map(function(i) {
@@ -298,6 +326,8 @@ class BoilerplateScene extends React.Component {
             {cohort.users.slice(cohort.circleSliceStart, cohort.circleSliceEnd).map(function(person) {
         // note: enabling text will cause the app to freeze,
         // as there are ~800 pictures being rendered, plus text (from the JSON)
+
+        // TODO: add argument person.handle to onClick
               return <Entity key={person.id} data={person}
                   geometry="primitive: box"
                   onClick={() => {that.startNameGame(person.name)} }

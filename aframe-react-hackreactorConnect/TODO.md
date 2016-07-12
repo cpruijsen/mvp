@@ -27,7 +27,7 @@
 - [] create a leaderboard // score for auth users
 
 ### stretch:
-- [] add an api integration ( https://developer.github.com/v3/search/ ? ) and a room for displaying GET data.
+- [] add an api integration ( hhttps://developer.github.com/v3/search/#search-users ? ) and a room for displaying GET data.
 - [] add https://www.fullcontact.com/developer/
 
 ### Misc:
@@ -36,13 +36,9 @@
 - [DONE] create readme with step-by-step / lessons
 - [DONE] request more data from HR
 - [DONE] obtain richer data (github handles etc.)
-
-**https://github.com/mikejonas/alumConnect for endpoints on /db/...**
-
 - [DONE] rotate text based on player position (so always visible from front)
 * I'm not too happy with look-at performance. Might be related to the text entity colliding somehow with the boxes.
-
-- [in progress] merge JSON allUsers and allData 
+- [in progress] merge JSON allUsers and allData
 **note: due to size of JSON files had to use fileSystem(fs), :/**
 
 ### idea: name game
