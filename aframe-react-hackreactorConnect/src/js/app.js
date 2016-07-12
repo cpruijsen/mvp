@@ -23,19 +23,20 @@ class BoilerplateScene extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      color: 'yellow',
+      color: '#ffffff',
       pyramidVisibility: false,
       score: 0,
       errorScore: 0,
       winVisible: false,
-      errorVisible: false
-      // layout: 'circle',
-      // cohort: 0
+      errorVisible: false,
+      currentPerson: 'Test User', // set this to the user on click
+      nameString: '',
+      keyboardVisible: true // TODO set to false before release.
     }
   }
 
   changeColor = () => {
-    const colors = ['orange', 'yellow', 'green', 'blue'];
+    const colors = ['orange', 'yellow', 'green', 'blue', 'white'];
     this.setState({
       color: colors[Math.floor(Math.random() * colors.length)],
     });
@@ -45,10 +46,21 @@ class BoilerplateScene extends React.Component {
     this.setState({pyramidVisibility: !this.state.pyramidVisibility});
   };
 
-  nameGame = (personName) => {
-    console.log(personName);
-    var name = prompt('namegame! who is this person?');
-    if (name === personName) {
+  startNameGame = (personName) => {
+    this.setState({currentPerson: personName});
+    this.setState({keyboardVisible: true});
+    // TODO: check if hidden keyboard can still be clicked...
+    // if so move keyboard somewhere weird and transport user there?
+    // or tell user where to go etc.
+  };
+
+  nameGame = () => {
+
+    var name = this.state.nameString;
+    var currentPerson = this.state.currentPerson;
+    var currentPersonFirstName = currentPerson.slice(0, currentPerson.indexOf(' ')); // test.
+    console.log(currentPersonFirstName);
+    if (name === currentPerson) {
       this.setState({score: this.state.score + 1});
       console.log('success!')
       if (this.state.score > 9) {
@@ -59,9 +71,28 @@ class BoilerplateScene extends React.Component {
       if (this.state.errorScore > 9) {
         this.setState({errorVisible: true});
       }
-      console.log('wrong! ' + personName + 'is not called ' + name);
+      console.log('wrong! ' + currentPersonFirstName + 'is not called ' + name);
     }
+    this.setState({keyboardVisible: false});
   };
+
+  addCharToNameString = (char) => {
+    if (char === 'DEL') {
+      return removeCharFromNameString();
+    } else if (char === 'ENTR') {
+      return nameGame();
+    } else if (char === 'SPACE') {
+      char = ' ';
+    }
+    this.setState({nameString: this.state.nameString + char});
+  };
+
+  removeCharFromNameString = () => {
+    console.log(this.state.nameString, 'before');
+    this.setState( {nameString: this.state.nameString.slice(0, this.state.nameString.length-1) }); // test.
+    console.log(this.state.nameString, 'after');
+  };
+
 
   render () {
     // general internal
@@ -191,6 +222,17 @@ class BoilerplateScene extends React.Component {
     };
     var datamap = createDataMapObj();
 
+    var keyBoard = {
+      leftKeyBoard: ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Z', 'X', 'C', 'V', 'T', 'SPACE' , 'DEL'],
+      rightKeyBoard: ['P', 'O', 'I', 'U', 'H', 'J', 'K', 'L', 'B', 'G', 'M', 'N', 'Y', 'SPACE' , 'ENTR']
+    };
+    var keyBoardStartPosition = 0;
+    var keyBoardPosition = function() { // TODO: improve.
+      var z = keyBoardStartPosition * 2;
+      keyBoardStartPosition++;
+      return `0 0 ${z}`
+    }
+
     return (
       <Scene >
         {/*  NOTE: disabling physics, as there is no 'real need' in the current implementation and there are performance implications.
@@ -229,10 +271,32 @@ class BoilerplateScene extends React.Component {
         <Entity light={{type: 'directional', intensity: 0.5}} position={[-1, 1, 0]}/>
         <Entity light={{type: 'directional', intensity: 1}} position={[1, 1, 0]}/>
 
-        {/*insert other material here*/}
+        {/* color toggle */}
+        <Entity static-body onClick={that.ChangeColor} geometry="primitive: box"   material="color: grey" position="-8 0 1">
+          <Entity text={`text: ChangeColor Click Me`}
+                  position="0 1 0"
+                  material="color: #af111c"
+                  scale="0.1 0.1 0"
+                  />
+        </Entity>
 
-        {/* visible toggle */}
-        <Entity static-body onClick={that.togglePyramidVisibility} geometry="primitive: box"   material="color: red" position="-10 0 1"> </Entity>
+        {/* keyboard for nameGame
+          TODO: need to figure out optimal spot
+        */}
+
+        {_.map(keyBoard, function(side) {
+          return <Entity layout="type: box, margin: 0.1, columns: 4"
+                         position={keyBoardPosition} >
+            {side.map(function(char) {
+             return <Entity text={`text: ${char}`}
+               // geometry="primitive: plane" // needs size?
+               material="color: #FFD700"
+               scale="0.1 0.1 0"
+               visible={that.state.keyboardVisible}
+               onClick={() => addCharToNameString(char)} />
+           })}
+          </Entity>
+        })}
 
         {/* cylinders */}
 
@@ -240,21 +304,17 @@ class BoilerplateScene extends React.Component {
           return cohort.dataRangeCircles.map(function(i) {
             cohort.changePosForCylinder();
             cohort.determineSlicingCylinder({all: true}, i);
-
             return <Entity
               layout={{type: 'circle', radius: `${cohort.datacb}`}} position={cohort.circlePosition}
               visible={!that.state.pyramidVisibility} >
-
             {/*<Animation attribute="layout.radius" repeat="indefinite" to={`${cohort.datasq}`} direction="alternate" begin="5000"/>*/}
-
             {cohort.users.slice(cohort.circleSliceStart, cohort.circleSliceEnd).map(function(person) {
-
         // note: enabling text will cause the app to freeze,
         // as there are ~800 pictures being rendered, plus text (from the JSON)
               return <Entity key={person.id} data={person}
                   geometry="primitive: box"
-                  material={{src: `url(${person.image})`, color: that.state.color}}
-                  onClick={that.changeColor} >
+                  onClick={() => {that.startNameGame(person.name)} }
+                  material={{src: `url(${person.image})`, color: that.state.color}}>
                   <Entity text={`text:  ${person.name}`}
                           material="color: #66E1B4"
                           scale="0.3 0.3 0.3"
@@ -265,50 +325,7 @@ class BoilerplateScene extends React.Component {
               </Entity> })
         })}
 
-                {/*pyramids and mirrored pyramids*/}
-                {_.map(datamap, function(cohort) {
-                  return cohort.sliceArr.map(function(i) {
-                    cohort.determineNforPyramid();
-                    cohort.changePositionForPyramid();
-                      return <Entity layout={{type: 'box', margin: '2', columns: `${cohort.pyramidCurrentN}`}}
-                        position={cohort.pyramidPosition}
-                        rotation="90 0 0"
-                        visible={that.state.pyramidVisibility} >
-
-                      {cohort.users.slice(cohort.pyramidSliceStart, cohort.pyramidSliceEnd).map(function(person) {
-                        return <Entity key={person.id}
-                          geometry="primitive: box"
-                          material={{src: `url(${person.image})`, color: 'orange'}}
-                          onClick={() => {that.nameGame(person.name)} } >
-                        </Entity>
-                      })}
-                    </Entity>
-                  })
-                })}
-
-              {/* // === MIRRORED PYRAMIDS === // */}
-              {/* {_.map(datamap, function(cohort) {
-                    cohort.sliceArr.map(function(i) {
-                      cohort.determineNforPyramid();
-                      cohort.changePositionForPyramid({mirrored: true});
-                        return <Entity layout={{type: 'box', margin: '2', columns: `${cohort.pyramidCurrentN}`}}
-                          position={cohort.pyramidMirroredPosition}
-                          rotation="90 0 0"
-                          visible={that.state.pyramidVisibility} >
-
-                        {cohort.users.slice(cohort.pyramidSliceStart, cohort.pyramidSliceEnd).map(function(person) {
-                          return <Entity key={person.id}
-                            geometry="primitive: box"
-
-                            material={{src: `url(${person.image})`, color: that.state.color}}
-                            onClick={that.changeColor} >
-                            <Animation attribute="rotation" dur="5000" repeat="indefinite" to="0 360 360"/>
-                          </Entity>
-                        })}
-                      </Entity>
-                    })
-                })} */}
-
+        {/* for now moving pyramids out (makes for faster testing) */}
       </Scene>
     );
   }

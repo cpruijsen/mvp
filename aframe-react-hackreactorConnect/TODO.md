@@ -42,4 +42,12 @@
 - [] if incorrect global error++
 - [] if error > 10, game over
 - [] if score > 40, you win
-- [] enable game start by clicking on a cube?
+- [] enable game start by clicking on a cube
+- [] render a keyboard for the player to answer from
+- [] keyboard has a-z and delete/submit/space
+- [] game end on clicking submit
+
+### future (super) Stretch
+- [] Clarif.ai API for image tags, implement a memory type game where you have to select similar people
+- [] find yourself (link to device camera?)
+- [] add enemies
