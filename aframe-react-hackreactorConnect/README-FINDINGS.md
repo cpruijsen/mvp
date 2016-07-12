@@ -45,4 +45,6 @@ It is very important to check which version of aframe you're running. I was usin
 
 Considering this is a new and fast-developing technology this is not uncommon.
 
-###
+### gameplay
+
+You need a lot more messaging to the user than you think initially (being completely new to game development...).

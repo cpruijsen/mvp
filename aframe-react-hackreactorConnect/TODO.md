@@ -1,20 +1,20 @@
 # TODO:
 
 ### dynamic rendering
-- [DONE ] change structure of data.js
-- [DONE ] dynamically generate clusters of cubes for classes
-- [DONE ] images of students on cubes
-- [ DONE ] enable color change
+- [DONE] change structure of data.js
+- [DONE] dynamically generate clusters of cubes for classes
+- [DONE] images of students on cubes
+- [DONE] enable color change
 - [ ONLY ON TEST ] enable layout change on shapes
-- [DONE ] add names (text components) for cubes
+- [DONE] add names (text components) for cubes
 - [DONE] render more than one complex layout shape
 - [] Infoboxes / animated fields per person/cube
 **currently no point, as we don't have more data.**
 - render cylinders in a circle, for easier access
 
 ### gamefield
-- [DONE ] change dependency to either A-frame master (check if it works with Aframe-react) or Extras v1.x (to work with aframe v0.2.x)
-- [DONE ] set up floor (plane), sky (dome)
+- [DONE] change dependency to either A-frame master (check if it works with Aframe-react) or Extras v1.x (to work with aframe v0.2.x)
+- [DONE] set up floor (plane), sky (dome)
 - [] transparency for floor
 - [DONE] add gravity for player / camera
 - [DONE] enable player jump
@@ -41,6 +41,9 @@
 
 - [DONE] rotate text based on player position (so always visible from front)
 * I'm not too happy with look-at performance. Might be related to the text entity colliding somehow with the boxes.
+
+- [in progress] merge JSON allUsers and allData 
+**note: due to size of JSON files had to use fileSystem(fs), :/**
 
 ### idea: name game
 - [DONE] click on a box to get a prompt

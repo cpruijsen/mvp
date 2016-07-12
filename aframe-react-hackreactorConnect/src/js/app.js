@@ -38,6 +38,8 @@ class BoilerplateScene extends React.Component {
       successVisible: false,
       currentNameStringVisible: false,
       currentPerson: 'Test User', // set this to the user on click
+      currentPersonGitHub: '',
+      currentPersonGitHubVisible: false,
       nameString: '',
       keyboardVisible: false
     }
@@ -134,11 +136,11 @@ class BoilerplateScene extends React.Component {
           this.circleIterator--;
           // TODO: make cylinder rendering actually circular
           if (i < len / 2) {
-            var x = -(i * 5);
-            var z = -(i * 2.5 - 10);
+            var x = -i*i;
+            var z = -i*i;
           } else {
-            var x = i * 5;
-            var z = i * 2.5 - 10;
+            var x = i*i;
+            var z = i*i;
           }
            // so each dataset has a unique rendering position for the cylinders
           var position = this.dataRangeCircles[this.circleIterator];
