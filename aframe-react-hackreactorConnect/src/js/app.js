@@ -28,10 +28,13 @@ class BoilerplateScene extends React.Component {
       score: 0,
       errorScore: 0,
       winVisible: false,
+      instructionVisible: false,
       errorVisible: false,
+      loseVisible: false,
+      successVisible: false,
       currentPerson: 'Test User', // set this to the user on click
       nameString: '',
-      keyboardVisible: true // TODO set to false before release.
+      keyboardVisible: false
     }
   }
 
@@ -48,39 +51,44 @@ class BoilerplateScene extends React.Component {
 
   startNameGame = (personName) => {
     this.setState({currentPerson: personName});
+    this.setState({nameString: ''});
+    // setting visibility of camera overlays and keyboard
+    this.setState({instructionVisible: true});
     this.setState({keyboardVisible: true});
-    // TODO: check if hidden keyboard can still be clicked...
-    // if so move keyboard somewhere weird and transport user there?
-    // or tell user where to go etc.
+    this.setState({errorVisible: false});
+    this.setState({successVisible: false});
+    this.setState({winVisible: false});
+    this.setState({loseVisible: false});
   };
 
   nameGame = () => {
-
     var name = this.state.nameString;
     var currentPerson = this.state.currentPerson;
-    var currentPersonFirstName = currentPerson.slice(0, currentPerson.indexOf(' ')); // test.
-    console.log(currentPersonFirstName);
+    var currentPersonFirstName = currentPerson.slice(0, currentPerson.indexOf(' '));
     if (name === currentPerson) {
       this.setState({score: this.state.score + 1});
-      console.log('success!')
       if (this.state.score > 9) {
         this.setState({winVisible: true});
       }
+      this.setState({successVisible: true});
     } else {
       this.setState({errorScore: this.state.errorScore + 1});
       if (this.state.errorScore > 9) {
+        this.setState({loseVisible: true});
+      } else {
         this.setState({errorVisible: true});
       }
-      console.log('wrong! ' + currentPersonFirstName + 'is not called ' + name);
+      console.log(currentPersonFirstName, ' is not ', name);
     }
     this.setState({keyboardVisible: false});
+    this.setState({instructionVisible: false});
   };
 
   addCharToNameString = (char) => {
     if (char === 'DEL') {
-      return removeCharFromNameString();
+      return this.removeCharFromNameString();
     } else if (char === 'ENTR') {
-      return nameGame();
+      return this.nameGame();
     } else if (char === 'SPACE') {
       char = ' ';
     }
@@ -88,11 +96,8 @@ class BoilerplateScene extends React.Component {
   };
 
   removeCharFromNameString = () => {
-    console.log(this.state.nameString, 'before');
-    this.setState( {nameString: this.state.nameString.slice(0, this.state.nameString.length-1) }); // test.
-    console.log(this.state.nameString, 'after');
+    this.setState( {nameString: this.state.nameString.slice(0, this.state.nameString.length-1) });
   };
-
 
   render () {
     // general internal
@@ -227,10 +232,11 @@ class BoilerplateScene extends React.Component {
       rightKeyBoard: ['P', 'O', 'I', 'U', 'H', 'J', 'K', 'L', 'B', 'G', 'M', 'N', 'Y', 'SPACE' , 'ENTR']
     };
     var keyBoardStartPosition = 0;
-    var keyBoardPosition = function() { // TODO: improve.
-      var z = keyBoardStartPosition * 2;
+    var keyBoardPosition;
+    var setKeyBoardPosition = function() {
+    // TODO: improve.
       keyBoardStartPosition++;
-      return `0 0 ${z}`
+      keyBoardPosition = `0 ${keyBoardStartPosition} 0`;
     }
 
     return (
@@ -254,16 +260,31 @@ class BoilerplateScene extends React.Component {
                   material="color: #66E1B4"
                   scale="0.1 0.1 0"
                   position="0.8 0.65 -1"  />
-                <Entity text={`text: You win! Champ.`}
+          <Entity text={`text: You win! Champ.`}
                   material="color: #FFD700"
                   scale="0.5 0.5 0"
                   visible={this.state.winVisible}
                   position="0.5 0.5 -1"  />
-                <Entity text={`text: You lose! Try again.`}
+          <Entity text={`text: You lose! Try again.`}
+                  material="color: #af111c"
+                  scale="0.1 0.1 0"
+                  visible={this.state.loseVisible}
+                  position="0.5 0.5 -1"  />
+          <Entity text={`text: Wrong! Try again.`}
                   material="color: #af111c"
                   scale="0.1 0.1 0"
                   visible={this.state.errorVisible}
-                  position="0.5 0.5 -1"  />
+                  position="0.5 0.5 -1" />
+          <Entity text={`text: Great! Keep Going.`}
+                  material="color: #af111c"
+                  scale="0.1 0.1 0"
+                  visible={this.state.successVisible}
+                  position="0.5 0.5 -1" />
+          <Entity text={`text: first name :: ENTR`}
+                  material="color: #66E1B4"
+                  scale="0.1 0.1 0"
+                  visible={this.state.instructionVisible}
+                  position="-0.8 0.65 -1"  />
         </Camera>
         <Sky/>
 
@@ -282,18 +303,25 @@ class BoilerplateScene extends React.Component {
 
         {/* keyboard for nameGame
           TODO: need to figure out optimal spot
+          TODO: change depth of boxes.
         */}
 
         {_.map(keyBoard, function(side) {
-          return <Entity layout="type: box, margin: 0.1, columns: 4"
+          setKeyBoardPosition();
+          return <Entity layout="type: 'box', margin: 1, columns: 4"
                          position={keyBoardPosition} >
             {side.map(function(char) {
-             return <Entity text={`text: ${char}`}
-               // geometry="primitive: plane" // needs size?
-               material="color: #FFD700"
-               scale="0.1 0.1 0"
-               visible={that.state.keyboardVisible}
-               onClick={() => addCharToNameString(char)} />
+             return <Entity key={char} geometry="primitive: box"
+                            material="color: grey"
+                            visible={that.state.keyboardVisible}
+                            onClick={() => that.addCharToNameString(char)} >
+               <Entity text={`text: ${char}`}
+                 material="color: #FFD700"
+                 position="0 0 0.5"
+                 scale="0.1 0.1 0"
+                 visible={that.state.keyboardVisible}
+                />
+             </Entity>
            })}
           </Entity>
         })}

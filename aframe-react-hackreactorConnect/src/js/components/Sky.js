@@ -5,7 +5,7 @@ import React from 'react';
 // extras.registerAll();
 
 export default props => (
-  <Entity geometry={{primitive: 'sphere', radius: 100}}
+  <Entity geometry={{primitive: 'sphere', radius: 300}}
           material={{color: "#73CFF0", shader: 'flat'}}
           scale="1 1 -1"
           static-body
