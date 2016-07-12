@@ -59,7 +59,7 @@ class BoilerplateScene extends React.Component {
   nameGame = () => {
     var name = this.state.nameString.toLowerCase();
     var currentPerson = this.state.currentPerson.toLowerCase();
-    var currentPersonFirstName = currentPerson.slice(0, currentPerson.indexOf(' ');
+    var currentPersonFirstName = currentPerson.slice(0, currentPerson.indexOf(' '));
     if (name === currentPersonFirstName) {
       this.setState({score: this.state.score + 1});
       if (this.state.score > 4) {
@@ -89,7 +89,7 @@ class BoilerplateScene extends React.Component {
       return this.nameGame();
     } else if (char === 'SPACE') { // removed spaces for now, no need.
       char = ' ';
-    } else if (char === 'HINT') { 
+    } else if (char === 'HINT') {
       return this.getHint();
     }
     this.setState({nameString: this.state.nameString + char});
