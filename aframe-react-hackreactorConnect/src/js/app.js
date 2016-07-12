@@ -24,7 +24,8 @@ class BoilerplateScene extends React.Component {
     super(props);
     this.state = {
       color: 'yellow',
-      pyramidVisibility: false
+      pyramidVisibility: false,
+      score: 0
       // layout: 'circle',
       // cohort: 0
     }
@@ -186,7 +187,15 @@ class BoilerplateScene extends React.Component {
                 scale="1 1 -1"/>
         */}
 
-        <Camera><Cursor/></Camera>
+        <Camera><Cursor/>
+          <Entity text={`text: current score = ${that.state.score}`}
+                  material="color: #66E1B4"
+                  // look-at="#camera"
+                  // visible="true"
+                  scale="0.1 0.1 0"
+                  position="0.8 0.65 -1"
+                  />
+        </Camera>
         <Sky/>
 
         <Entity light={{type: 'ambient', color: '#888'}}/>

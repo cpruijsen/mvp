@@ -12,11 +12,12 @@
 * currently no point, as we don't have more data.
 
 ### gamefield
-- [] change dependency to either A-frame master (check if it works with Aframe-react) or Extras v1.x (to work with aframe v0.2.x)
-- [] set up floor (plane), sky (dome)
+- [DONE ] change dependency to either A-frame master (check if it works with Aframe-react) or Extras v1.x (to work with aframe v0.2.x)
+- [DONE ] set up floor (plane), sky (dome)
 - [] transparency for floor
-- [] add gravity for player / camera
-- [] enable player jump
+- [DONE] add gravity for player / camera
+- [DONE] enable player jump
+**note: disabled physics for performance**
 
 ### non-aframe:
 - [] add login / auth
@@ -36,6 +37,7 @@
 ### idea: name game
 - [DONE] click on a box to get a prompt
 - [DONE] prompt asks for name of the person
+- [DONE] display score positioned relative to camera
 - [] if correct global score ++
 - [] if incorrect global error++
 - [] if error > 10, game over

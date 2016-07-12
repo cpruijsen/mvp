@@ -12,7 +12,7 @@ export default props => (
       camera="active:true"
       universal-controls=""
       // kinematic-body=""
-      // jump-ability="enableDoubleJump: true; distance: 2.5;"
+      // `jump-ability="enableDoubleJump: true; distance: 2.5;"
       // velocity="0 0 0"
       {...props}/>
 
