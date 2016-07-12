@@ -52,8 +52,10 @@ class BoilerplateScene extends React.Component {
         //  this.setState({currentPersonGitHub: personGitHub});
     // }
 
+    // >> could be refactored into a 'reset' function / state.
     this.setState({currentPerson: personName});
     this.setState({nameString: ''});
+    this.setState({hintName: ''});
     // setting visibility of camera overlays and keyboard
     this.setState({instructionVisible: true});
     this.setState({keyboardVisible: true});
@@ -187,12 +189,18 @@ class BoilerplateScene extends React.Component {
     var keyBoardStartPosition = -1;
     var keyBoardPosition;
     var keyBoardRotation = "0 0 0";
-    var setKeyBoardPosition = function() {    // TODO: improve.
-      // camera - how to get node access?
-      // try document.querySelector('a-entity[camera]').object3D.position
-
-      keyBoardStartPosition +=1.5;
-      keyBoardPosition = `${keyBoardStartPosition} 0 0`;
+    var setKeyBoardPosition = function() { 
+      if (document.querySelector('a-entity[camera]')) {
+         var cameraposition = document.querySelector('a-entity[camera]').object3D.position;
+         keyBoardStartPosition +=1.5;
+         var keyBoardPositionsBasedOnCamera = {
+           x: cameraposition.x + keyBoardStartPosition,
+         }
+         keyBoardPosition = `${keyBoardPositionsBasedOnCamera.x} ${cameraposition.y} ${cameraposition.z}`;
+      } else { // error case, mainly on initial load.
+        keyBoardStartPosition +=1.5;
+        keyBoardPosition = `${keyBoardStartPosition} 0 0`;
+      }
       if (keyBoardStartPosition > 0.5) {
         keyBoardRotation = "0 -90 0";
       }
