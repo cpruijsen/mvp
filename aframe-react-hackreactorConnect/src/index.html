@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>A-Frame React Boilerplate</title>
+    <title>Hack Reactor Connect VR</title>
   </head>
 
   <body>
     <div class="scene-container"></div>
+      <script src="https://www.gstatic.com/firebasejs/3.2.0/firebase.js"></script>
+      <script> // NOTE: which of the two HTML files to include it in?
+        // Initialize Firebase
+        var config = {
+          apiKey: "AIzaSyBk06b2k171KoJORJJlU7lcPR2tEOB24Xk",
+          authDomain: "hackreactorconnect-vr.firebaseapp.com",
+          databaseURL: "https://hackreactorconnect-vr.firebaseio.com",
+          storageBucket: "hackreactorconnect-vr.appspot.com",
+        };
+        firebase.initializeApp(config);
+      </script>
     <script>
     <!--
     document.write('<script src="http://' + document.location.hostname + ':8080/bundle.js"></script>');

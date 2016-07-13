@@ -37,7 +37,7 @@
 - [DONE] request more data from HR
 - [DONE] obtain richer data (github handles etc.)
 - [DONE] rotate text based on player position (so always visible from front)
-* I'm not too happy with look-at performance. Might be related to the text entity colliding somehow with the boxes.
+* You have to include the `#` in the id-selector for `look-at`, unlike in some other frameworks (such as jQuery...)
 - [in progress] merge JSON allUsers and allData
 **note: due to size of JSON files had to use fileSystem(fs), :/**
 
@@ -52,6 +52,12 @@
 - [DONE] enable game start by clicking on a cube
 - [DONE] render a keyboard for the player to answer from
 - [DONE] keyboard has a-z and delete/submit/space
+- [DONE] keyboard renders/positions dynamically based on camera position
+
+**note: keyboard was repositioning on each render to camera position, and this caused some janky behavior (you ideally only want it to render dynamically once on start game for each new person) - so I took the rendering out of the map function to handle them separately**
+
+Solution: I ended up using state... although another solution would have been `<Animate begin="nameGame"/>` with `document.querySelector('#keyboardRight').emit('nameGame');`
+
 - [DONE] game end on clicking submit
 - [DONE] polish and make fun to play ;)
 - [DONE] enable hints, improve game messages

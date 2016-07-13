@@ -4,6 +4,7 @@ import 'babel-polyfill';
 import 'aframe-text-component';
 import 'aframe-physics-components';
 import 'aframe-extras';
+import 'aframe-firebase-component';
 var extras = require('aframe-extras');
 extras.registerAll();
 import _ from 'underscore';
@@ -41,11 +42,14 @@ class BoilerplateScene extends React.Component {
       currentPersonGitHub: '',
       currentPersonGitHubVisible: false,
       nameString: '',
-      keyboardVisible: false
+      keyboardVisible: false,
+      keyBoardPositionLeft: "0 0 0",
+      keyBoardPositionRight: "0 0 0"
     }
   }
 
   startNameGame = (personName, personGitHub) => {
+    this.setKeyBoardPosition();
 
     // if (this.state.currentPerson === personName) {
     //   this.setState({currentPersonGitHubVisible: true});
@@ -117,6 +121,20 @@ class BoilerplateScene extends React.Component {
     this.setState({hintNameIndex: this.state.hintNameIndex + 1});
   };
 
+  setKeyBoardPosition = () => {
+    if (document.querySelector('a-entity[camera]')) {
+       var cameraposition = document.querySelector('a-entity[camera]').object3D.position;
+       var keyBoardPositionsBasedOnCamera = {
+         xr: cameraposition.x + 0.5, // TODO: tweak these a bit.
+         xl: cameraposition.x + 0.5, // Raycaster might be relevant.
+         zr: cameraposition.z + 0.5,
+         zl: cameraposition.z + 2,
+       }
+       this.setState({keyBoardPositionLeft: `${keyBoardPositionsBasedOnCamera.xl} ${cameraposition.y} ${keyBoardPositionsBasedOnCamera.zl}`});
+       this.setState({keyBoardPositionRight: `${keyBoardPositionsBasedOnCamera.xr} ${cameraposition.y} ${keyBoardPositionsBasedOnCamera.zr}`});
+    }
+  };
+
   // fetchGitHub = () => {
   //   var handle = this.state.currentPersonGitHub;
   //   // NOTE: need to get a client ID etc for github and insert into fetch.
@@ -157,7 +175,7 @@ class BoilerplateScene extends React.Component {
             var z = -24 + i*3;
           }
            // so each dataset has a unique rendering position for the cylinders
-          var position = this.dataRangeCircles[this.circleIterator];
+          var position = this.dataRangeCircles[this.circleIterator] * 0.75;
           this.circlePosition = `${x} ${position} ${z}`;
           if (this.circleIterator === 0) {
             this.circleIterator = this.numCircles;
@@ -185,25 +203,6 @@ class BoilerplateScene extends React.Component {
     var keyBoard = {
       leftKeyBoard: ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Z', 'X', 'C', 'V', 'T', 'ENTR' , 'DEL', 'HINT'],
       rightKeyBoard: ['P', 'O', 'I', 'U', 'H', 'J', 'K', 'L', 'B', 'G', 'M', 'N', 'Y', 'DEL' , 'ENTR', 'HINT']
-    };
-    var keyBoardStartPosition = -1;
-    var keyBoardPosition;
-    var keyBoardRotation = "0 0 0";
-    var setKeyBoardPosition = function() { 
-      if (document.querySelector('a-entity[camera]')) {
-         var cameraposition = document.querySelector('a-entity[camera]').object3D.position;
-         keyBoardStartPosition +=1.5;
-         var keyBoardPositionsBasedOnCamera = {
-           x: cameraposition.x + keyBoardStartPosition,
-         }
-         keyBoardPosition = `${keyBoardPositionsBasedOnCamera.x} ${cameraposition.y} ${cameraposition.z}`;
-      } else { // error case, mainly on initial load.
-        keyBoardStartPosition +=1.5;
-        keyBoardPosition = `${keyBoardStartPosition} 0 0`;
-      }
-      if (keyBoardStartPosition > 0.5) {
-        keyBoardRotation = "0 -90 0";
-      }
     };
 
     return (
@@ -264,8 +263,8 @@ class BoilerplateScene extends React.Component {
                   material="color: #af111c"
                   scale="0.1 0.1 0"
                   visible={this.state.successVisible}
-                  position="0.5 0.5 -1" />
-          <Entity text={`text: first name :: ENTR`}
+                  position="0.5 0.1 -1" />
+                <Entity text={`text: (firstname) => ENTR`}
                   material="color: #66E1B4"
                   scale="0.1 0.1 0"
                   visible={this.state.instructionVisible}
@@ -277,7 +276,7 @@ class BoilerplateScene extends React.Component {
         <Entity light={{type: 'directional', intensity: 0.5}} position={[-1, 1, 0]}/>
         <Entity light={{type: 'directional', intensity: 1}} position={[1, 1, 0]}/>
 
-        {/* github profile pane */}
+      {/* github profile pane */}
       {/*<Entity
         id="gitHubProfilePanel"
         visible={currentPersonGitHubVisible}
@@ -293,18 +292,13 @@ class BoilerplateScene extends React.Component {
     </Entity>*/}
 
 
-        {/* keyboard for nameGame
-          TODO: need to figure out optimal spot
-          TODO: change depth of boxes.
-        */}
-
-        {_.map(keyBoard, function(side) {
-          setKeyBoardPosition();
-          return <Entity layout={{type: 'box', margin: '0.35', columns: '4'}}
-                         position={keyBoardPosition}
-                         rotation={keyBoardRotation}
-                         >
-            {side.map(function(char) {
+        {/* keyboard for nameGame */}
+        {/* right keyboard */}
+        { <Entity id="keyboardRight"
+                  layout={{type: 'box', margin: '0.35', columns: '4'}}
+                  position={that.state.keyBoardPositionRight}
+                  look-at="#camera" >
+            {keyBoard.rightKeyBoard.map(function(char) {
              return <Entity key={char} geometry="primitive: box"
                             scale="0.35 0.35 0.01"
                             material="color: grey"
@@ -314,12 +308,31 @@ class BoilerplateScene extends React.Component {
                  material="color: #FFD700"
                  position="0. 0 0.75"
                  scale="0.2 0.2 1"
-                 visible={that.state.keyboardVisible}
-                />
+                 visible={that.state.keyboardVisible}> </Entity>
              </Entity>
            })}
-          </Entity>
-        })}
+         </Entity>
+        }
+
+        {/* left keyboard */}
+        {<Entity id="keyboardLeft"
+                 layout={{type: 'box', margin: '0.35', columns: '4'}}
+                 position={that.state.keyBoardPositionLeft}
+                 look-at="#camera" >
+            {keyBoard.leftKeyBoard.map(function(char) {
+             return <Entity key={char} geometry="primitive: box"
+                            scale="0.35 0.35 0.01"
+                            material="color: grey"
+                            visible={that.state.keyboardVisible}
+                            onClick={() => that.addCharToNameString(char)} >
+               <Entity text={`text: ${char}`}
+                 material="color: #FFD700"
+                 position="0. 0 0.75"
+                 scale="0.2 0.2 1"
+                 visible={that.state.keyboardVisible}> </Entity>
+             </Entity>
+           })}
+         </Entity>}
 
         {/* cylinders - disabled animation for performance. */}
 
